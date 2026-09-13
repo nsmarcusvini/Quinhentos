@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { HouseGrid } from '../../components/HouseGrid'
-import { Modal } from '../../components/ui/Modal'
 import { useToast } from '../../components/ui/Toast'
+import { useCelebration } from '../../hooks/useCelebration'
 import { HOUSE_COUNT, HOUSE_NUMBERS } from '../../lib/constants'
 import { formatCurrency } from '../../lib/format'
 import { scrollBehavior } from '../../lib/motion'
@@ -9,20 +9,24 @@ import { useChallenge } from '../../state/ChallengeContext'
 import { useStats } from '../../state/useStats'
 import { AppHeader } from './AppHeader'
 import { AppPanels } from './AppPanels'
+import { MilestoneStrip } from './MilestoneStrip'
 import { Toolbar, type HouseFilter } from './Toolbar'
+import { useUnmarkFlow } from './useUnmarkFlow'
 import type { PanelId } from './panels'
 
 const HIGHLIGHT_MS = 2600
 
 export default function AppPage() {
-  const { state, entries, mark, unmark } = useChallenge()
+  const { state, entries, mark } = useChallenge()
   const stats = useStats()
   const showToast = useToast()
+  const { requestUnmark, dialog: unmarkDialog } = useUnmarkFlow()
+
+  useCelebration(stats)
 
   const [filter, setFilter] = useState<HouseFilter>('todas')
   const [search, setSearch] = useState('')
   const [highlighted, setHighlighted] = useState<number | null>(null)
-  const [houseToUnmark, setHouseToUnmark] = useState<number | null>(null)
   const [panel, setPanel] = useState<PanelId | null>(null)
 
   const visibleNumbers = useMemo(() => {
@@ -89,7 +93,7 @@ export default function AppPage() {
   // casinha re-renderiza só ela (as outras 499 ficam paradas pelo memo).
   const activate = (houseNumber: number) => {
     if (entries[houseNumber] === undefined) mark(houseNumber)
-    else setHouseToUnmark(houseNumber)
+    else requestUnmark(houseNumber)
   }
   const activateRef = useRef(activate)
   useEffect(() => {
@@ -97,27 +101,17 @@ export default function AppPage() {
   })
   const handleActivate = useCallback((houseNumber: number) => activateRef.current(houseNumber), [])
 
-  const confirmUnmark = useCallback(() => {
-    if (houseToUnmark === null) return
-
-    const houseNumber = houseToUnmark
-    const markedAt = entries[houseNumber]
-    setHouseToUnmark(null)
-    unmark(houseNumber)
-    showToast({
-      title: `Casinha ${houseNumber} desmarcada`,
-      description: `${formatCurrency(houseNumber)} saíram do seu total.`,
-      action: markedAt
-        ? { label: 'Desfazer', onClick: () => mark(houseNumber, markedAt) }
-        : undefined,
-    })
-  }, [entries, houseToUnmark, mark, showToast, unmark])
-
   return (
     <div className="min-h-dvh bg-bg">
       <AppHeader challengeName={state.challengeName} stats={stats} onOpenPanel={setPanel} />
 
       <main className="mx-auto w-full max-w-5xl px-4 pb-16 pt-4">
+        {stats.markedCount > 0 && (
+          <div className="mb-4">
+            <MilestoneStrip stats={stats} />
+          </div>
+        )}
+
         <Toolbar
           filter={filter}
           onFilterChange={setFilter}
@@ -149,21 +143,14 @@ export default function AppPage() {
         </div>
       </main>
 
-      <Modal
-        open={houseToUnmark !== null}
-        title={`Desmarcar a casinha ${houseToUnmark ?? ''}?`}
-        description={
-          houseToUnmark !== null
-            ? `Isso tira ${formatCurrency(houseToUnmark)} do seu total guardado. Você pode marcar de novo quando quiser.`
-            : undefined
-        }
-        confirmLabel="Desmarcar"
-        destructive
-        onConfirm={confirmUnmark}
-        onClose={() => setHouseToUnmark(null)}
-      />
+      {unmarkDialog}
 
-      <AppPanels panel={panel} onClose={() => setPanel(null)} />
+      <AppPanels
+        panel={panel}
+        stats={stats}
+        onClose={() => setPanel(null)}
+        onUndo={requestUnmark}
+      />
     </div>
   )
 }
