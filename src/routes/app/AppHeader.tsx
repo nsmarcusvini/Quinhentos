@@ -25,7 +25,7 @@ export function AppHeader({ challengeName, stats, onOpenPanel }: AppHeaderProps)
           <div className="min-w-0">
             <Link
               to="/"
-              className="text-[11px] font-semibold uppercase tracking-wider text-muted transition-colors duration-150 hover:text-brand-500"
+              className="text-[11px] font-semibold uppercase tracking-wider text-muted transition-colors duration-150 hover:text-accent"
             >
               Desafio 500
             </Link>
@@ -52,7 +52,7 @@ export function AppHeader({ challengeName, stats, onOpenPanel }: AppHeaderProps)
           <p className="num text-3xl font-bold leading-none text-ink sm:text-4xl">
             {formatCurrency(stats.saved)}
           </p>
-          <p className="num text-lg font-semibold leading-none text-brand-500">
+          <p className="num text-lg font-semibold leading-none text-accent">
             {formatPercent(stats.ratio)}
           </p>
         </div>

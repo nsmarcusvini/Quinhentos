@@ -30,7 +30,7 @@ export function LoopGrid() {
   const fireConfetti = useConfetti()
   const containerRef = useRef<HTMLDivElement>(null)
   const amountRef = useRef<HTMLSpanElement>(null)
-  const order = useMemo(shuffledOrder, [])
+  const order = useMemo(() => shuffledOrder(), [])
 
   useEffect(() => {
     const container = containerRef.current
@@ -128,7 +128,7 @@ export function LoopGrid() {
             <span
               ref={amountRef}
               aria-hidden="true"
-              className="num text-2xl font-bold text-brand-400 sm:text-3xl"
+              className="num text-2xl font-bold text-accent sm:text-3xl"
             >
               {formatCurrencyCompact(0)}
             </span>

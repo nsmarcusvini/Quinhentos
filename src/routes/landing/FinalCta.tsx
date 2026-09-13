@@ -36,7 +36,7 @@ export function FinalCta({ stats }: { stats: ChallengeStats }) {
 
         <div className="mx-auto mt-8 max-w-md rounded-2xl border border-line bg-surface/70 p-4 text-left">
           <p className="flex items-center gap-2 text-sm font-semibold text-ink">
-            <WifiOffIcon width={18} height={18} className="text-brand-400" />
+            <WifiOffIcon width={18} height={18} className="text-accent" />
             Instale e use offline
           </p>
 

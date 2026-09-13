@@ -84,7 +84,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               {toast.action && (
                 <button
                   type="button"
-                  className="mt-2 min-h-[36px] text-sm font-semibold text-brand-500 underline-offset-4 hover:underline"
+                  className="mt-2 min-h-[36px] text-sm font-semibold text-accent underline-offset-4 hover:underline"
                   onClick={() => {
                     toast.action?.onClick()
                     dismiss(toast.id)

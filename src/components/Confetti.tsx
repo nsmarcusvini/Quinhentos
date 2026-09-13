@@ -37,7 +37,7 @@ export function ConfettiProvider({ children }: { children: ReactNode }) {
   const particles = useRef<Particle[]>([])
   const frame = useRef<number | null>(null)
 
-  const draw = useCallback(() => {
+  const draw = useCallback(function drawFrame() {
     const canvas = canvasRef.current
     const context = canvas?.getContext('2d')
     if (!canvas || !context) return
@@ -75,7 +75,7 @@ export function ConfettiProvider({ children }: { children: ReactNode }) {
     particles.current = alive
 
     if (alive.length > 0) {
-      frame.current = requestAnimationFrame(draw)
+      frame.current = requestAnimationFrame(drawFrame)
     } else {
       frame.current = null
     }

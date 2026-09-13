@@ -72,6 +72,8 @@ export function useStats(): ChallengeStats {
     const lastEntryAt = history.length > 0 ? (history[0] as HistoryItem).at : null
 
     // --- ritmo -------------------------------------------------------------
+    // `now` é capturado junto com as entradas: o ritmo só se move quando o
+    // desafio se move, e não a cada render.
     const now = Date.now()
     const activeDays =
       firstEntryAt === null ? 0 : Math.max(1, daysBetween(firstEntryAt, now) + 1)

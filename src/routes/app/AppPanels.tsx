@@ -1,6 +1,7 @@
 import { Sheet } from '../../components/ui/Sheet'
 import type { ChallengeStats } from '../../state/useStats'
 import { HistoryPanel } from './HistoryPanel'
+import { SettingsPanel } from './SettingsPanel'
 import { StatsPanel } from './StatsPanel'
 import type { PanelId } from './panels'
 
@@ -22,7 +23,7 @@ export function AppPanels({ panel, stats, onClose, onUndo }: AppPanelsProps) {
     <Sheet open={panel !== null} title={panel ? TITLES[panel] : ''} onClose={onClose}>
       {panel === 'stats' && <StatsPanel stats={stats} />}
       {panel === 'history' && <HistoryPanel stats={stats} onUndo={onUndo} />}
-      {panel === 'settings' && <p className="text-sm text-muted">Em construção.</p>}
+      {panel === 'settings' && <SettingsPanel />}
     </Sheet>
   )
 }

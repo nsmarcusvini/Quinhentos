@@ -35,7 +35,7 @@ export function HowItWorks() {
                 <div className="flex items-center gap-3">
                   <span
                     aria-hidden="true"
-                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-500/12 text-brand-400"
+                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-500/12 text-accent"
                   >
                     <Icon />
                   </span>

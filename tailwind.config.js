@@ -24,6 +24,7 @@ export default {
           bg: withOpacity('--c-success-bg'),
           fg: withOpacity('--c-success-fg'),
         },
+        accent: withOpacity('--c-accent'),
         gold: withOpacity('--c-gold'),
         danger: withOpacity('--c-danger'),
       },

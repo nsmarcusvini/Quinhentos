@@ -24,6 +24,10 @@
     --c-success-bg: 21 128 61;
     --c-success-fg: 240 253 244;
 
+    /* Verde usado como TEXTO. No claro precisa ser bem mais escuro que o
+       brand-500 para passar em AA (4,71:1 contra 2,14:1). */
+    --c-accent: 21 128 61;
+
     --c-gold: 180 120 12;
     --c-danger: 190 42 42;
 
@@ -40,6 +44,8 @@
 
     --c-success-bg: 21 128 61;
     --c-success-fg: 240 253 244;
+
+    --c-accent: 74 222 128;
 
     --c-gold: 250 204 21;
     --c-danger: 248 113 113;

@@ -47,13 +47,13 @@ export function Hero({ stats }: { stats: ChallengeStats }) {
       />
 
       <div className="relative mx-auto w-full max-w-3xl">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-500">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-accent">
           Desafio 500 · grátis e sem cadastro
         </p>
 
         <h1 className="mt-3 text-3xl font-bold leading-[1.12] tracking-tight text-ink sm:text-5xl">
           Junte{' '}
-          <span className="num text-brand-400">{formatCurrencyCompact(TOTAL_AMOUNT)}</span> riscando
+          <span className="num text-accent">{formatCurrencyCompact(TOTAL_AMOUNT)}</span> riscando
           um número por vez
         </h1>
 
@@ -69,7 +69,7 @@ export function Hero({ stats }: { stats: ChallengeStats }) {
               <p className="text-xs font-medium uppercase tracking-wider text-muted">
                 Experimente agora — vale de verdade
               </p>
-              <p className="num mt-1 text-3xl font-bold leading-none text-brand-400 sm:text-4xl">
+              <p className="num mt-1 text-3xl font-bold leading-none text-accent sm:text-4xl">
                 {formatCurrency(Math.round(animatedTotal))}
               </p>
             </div>

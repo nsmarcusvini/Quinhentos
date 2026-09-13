@@ -105,7 +105,7 @@ export default function AppPage() {
     <div className="min-h-dvh bg-bg">
       <AppHeader challengeName={state.challengeName} stats={stats} onOpenPanel={setPanel} />
 
-      <main className="mx-auto w-full max-w-5xl px-4 pb-16 pt-4">
+      <main id="conteudo" className="mx-auto w-full max-w-5xl px-4 pb-16 pt-4">
         {stats.markedCount > 0 && (
           <div className="mb-4">
             <MilestoneStrip stats={stats} />

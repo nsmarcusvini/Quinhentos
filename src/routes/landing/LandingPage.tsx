@@ -13,13 +13,15 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-dvh bg-bg pb-20 sm:pb-0">
-      <Hero stats={stats} />
-      <HowItWorks />
-      <GoalCalculator stats={stats} />
-      <LoopGrid />
-      <MilestonesTimeline stats={stats} />
-      <Faq />
-      <FinalCta stats={stats} />
+      <main id="conteudo">
+        <Hero stats={stats} />
+        <HowItWorks />
+        <GoalCalculator stats={stats} />
+        <LoopGrid />
+        <MilestonesTimeline stats={stats} />
+        <Faq />
+        <FinalCta stats={stats} />
+      </main>
 
       <footer className="border-t border-line px-4 py-8 text-center text-xs text-muted">
         <p>

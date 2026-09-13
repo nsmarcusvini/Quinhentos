@@ -68,7 +68,7 @@ export function MilestonesTimeline({ stats }: { stats: ChallengeStats }) {
                         </span>
                       </p>
                       {reached && (
-                        <p className="rounded-full bg-brand-500/15 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-brand-500">
+                        <p className="rounded-full bg-brand-500/10 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-accent">
                           Conquistado
                         </p>
                       )}

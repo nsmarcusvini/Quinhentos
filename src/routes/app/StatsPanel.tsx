@@ -1,12 +1,14 @@
 import { Suspense, lazy } from 'react'
 import { ProgressBar } from '../../components/ui/ProgressBar'
-import { formatDate } from '../../lib/date'
+import { daysBetween, formatDate, parseDateInput } from '../../lib/date'
 import {
   formatCurrency,
   formatCurrencyCompact,
   formatInteger,
   formatPercent,
+  pluralize,
 } from '../../lib/format'
+import { useChallenge } from '../../state/ChallengeContext'
 import type { ChallengeStats } from '../../state/useStats'
 
 const SavingsChart = lazy(() => import('./SavingsChart'))
@@ -22,6 +24,10 @@ function Stat({ label, value, hint }: { label: string; value: string; hint?: str
 }
 
 export function StatsPanel({ stats }: { stats: ChallengeStats }) {
+  const { state } = useChallenge()
+  const targetAt = state.targetDate ? parseDateInput(state.targetDate) : null
+  const daysToTarget = targetAt === null ? null : daysBetween(Date.now(), targetAt)
+
   if (stats.markedCount === 0) {
     return (
       <p className="rounded-2xl border border-dashed border-line px-4 py-10 text-center text-sm text-muted">
@@ -35,7 +41,7 @@ export function StatsPanel({ stats }: { stats: ChallengeStats }) {
       <section>
         <div className="flex items-baseline justify-between gap-3">
           <p className="num text-2xl font-bold text-ink">{formatCurrency(stats.saved)}</p>
-          <p className="num text-sm font-semibold text-brand-500">{formatPercent(stats.ratio)}</p>
+          <p className="num text-sm font-semibold text-accent">{formatPercent(stats.ratio)}</p>
         </div>
         <ProgressBar
           className="mt-2"
@@ -76,7 +82,7 @@ export function StatsPanel({ stats }: { stats: ChallengeStats }) {
       <section className="rounded-2xl border border-line bg-surface p-3.5">
         <p className="text-xs uppercase tracking-wider text-muted">Projeção de conclusão</p>
         {stats.isComplete ? (
-          <p className="mt-1 text-lg font-semibold text-brand-500">
+          <p className="mt-1 text-lg font-semibold text-accent">
             Desafio completo. Todas as 500 riscadas.
           </p>
         ) : stats.projectedFinishAt ? (
@@ -92,6 +98,28 @@ export function StatsPanel({ stats }: { stats: ChallengeStats }) {
           <p className="mt-1 text-sm text-muted">Marque mais casinhas para estimar uma data.</p>
         )}
       </section>
+
+      {targetAt !== null && daysToTarget !== null && (
+        <section className="rounded-2xl border border-line bg-surface p-3.5">
+          <p className="text-xs uppercase tracking-wider text-muted">Data-alvo</p>
+          <p className="mt-1 text-lg font-semibold text-ink">{formatDate(targetAt)}</p>
+          {stats.isComplete ? (
+            <p className="mt-0.5 text-xs text-accent">Você chegou antes do prazo.</p>
+          ) : daysToTarget > 0 ? (
+            <p className="mt-0.5 text-xs text-muted">
+              Faltam {pluralize(daysToTarget, 'dia', 'dias')} — dá{' '}
+              <span className="num text-ink">
+                {formatCurrencyCompact((stats.remaining / daysToTarget) * 7)}
+              </span>{' '}
+              por semana daqui pra frente.
+            </p>
+          ) : (
+            <p className="mt-0.5 text-xs text-muted">
+              A data-alvo já passou. Defina uma nova nas configurações.
+            </p>
+          )}
+        </section>
+      )}
 
       <section>
         <p className="mb-2 text-xs uppercase tracking-wider text-muted">Acumulado ao longo do tempo</p>

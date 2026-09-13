@@ -56,7 +56,7 @@ export function GoalCalculator({ stats }: { stats: ChallengeStats }) {
             Quanto você guarda por semana?
           </label>
 
-          <p className="num mt-1 text-3xl font-bold text-brand-400">{formatCurrency(perWeek)}</p>
+          <p className="num mt-1 text-3xl font-bold text-accent">{formatCurrency(perWeek)}</p>
 
           <input
             id={sliderId}
