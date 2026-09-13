@@ -1,0 +1,96 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------------------------------------------------------------
+   Design tokens — canais RGB para permitir modificadores de opacidade
+   do Tailwind (ex.: bg-brand-500/20). Tema escuro é a base.
+   --------------------------------------------------------------- */
+@layer base {
+  :root {
+    --c-bg: 246 248 251;
+    --c-surface: 255 255 255;
+    --c-surface-2: 238 242 247;
+    --c-line: 214 222 233;
+    --c-ink: 13 18 32;
+    --c-muted: 85 97 122;
+
+    --c-brand-300: 134 239 172;
+    --c-brand-400: 74 222 128;
+    --c-brand-500: 34 197 94;
+    --c-brand-600: 22 163 74;
+    --c-brand-700: 21 128 61;
+
+    --c-success-bg: 21 128 61;
+    --c-success-fg: 240 253 244;
+
+    --c-gold: 180 120 12;
+    --c-danger: 190 42 42;
+
+    color-scheme: light;
+  }
+
+  .dark {
+    --c-bg: 10 12 16;
+    --c-surface: 18 21 28;
+    --c-surface-2: 26 31 41;
+    --c-line: 40 47 60;
+    --c-ink: 232 236 243;
+    --c-muted: 150 162 182;
+
+    --c-success-bg: 21 128 61;
+    --c-success-fg: 240 253 244;
+
+    --c-gold: 250 204 21;
+    --c-danger: 248 113 113;
+
+    color-scheme: dark;
+  }
+
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-bg text-ink font-sans antialiased;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Foco visível e consistente em todo o app */
+  :focus-visible {
+    @apply outline-none ring-2 ring-brand-500 ring-offset-2 ring-offset-bg;
+  }
+
+  ::selection {
+    @apply bg-brand-500/30;
+  }
+}
+
+@layer components {
+  .tap-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .card {
+    @apply rounded-2xl border border-line bg-surface;
+  }
+
+  .num {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum' 1, 'ss01' 1;
+    letter-spacing: -0.01em;
+  }
+}
+
+/* Respeita a preferência do sistema por menos movimento */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
