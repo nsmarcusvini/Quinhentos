@@ -76,6 +76,59 @@
     @apply rounded-2xl border border-line bg-surface;
   }
 
+  /* Slider da calculadora: trilho preenchido até --progress */
+  input[type='range'] {
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  input[type='range']::-webkit-slider-runnable-track {
+    height: 8px;
+    border-radius: 9999px;
+    background: linear-gradient(
+      to right,
+      rgb(var(--c-brand-500)) 0%,
+      rgb(var(--c-brand-500)) var(--progress, 0%),
+      rgb(var(--c-surface-2)) var(--progress, 0%),
+      rgb(var(--c-surface-2)) 100%
+    );
+  }
+
+  input[type='range']::-moz-range-track {
+    height: 8px;
+    border-radius: 9999px;
+    background: rgb(var(--c-surface-2));
+  }
+
+  input[type='range']::-moz-range-progress {
+    height: 8px;
+    border-radius: 9999px;
+    background: rgb(var(--c-brand-500));
+  }
+
+  input[type='range']::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    margin-top: -8px;
+    height: 24px;
+    width: 24px;
+    border-radius: 9999px;
+    border: 3px solid rgb(var(--c-bg));
+    background: rgb(var(--c-brand-400));
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.35);
+    cursor: grab;
+  }
+
+  input[type='range']::-moz-range-thumb {
+    height: 24px;
+    width: 24px;
+    border-radius: 9999px;
+    border: 3px solid rgb(var(--c-bg));
+    background: rgb(var(--c-brand-400));
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.35);
+    cursor: grab;
+  }
+
   .num {
     font-variant-numeric: tabular-nums;
     font-feature-settings: 'tnum' 1, 'ss01' 1;
