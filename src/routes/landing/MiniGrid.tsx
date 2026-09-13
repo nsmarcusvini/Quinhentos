@@ -31,7 +31,7 @@ const MiniHouse = memo(function MiniHouse({ number, marked, onActivate }: MiniHo
         'text-xs font-semibold tabular-nums transition-[background-color,border-color,color,transform] duration-150',
         'active:scale-95',
         marked
-          ? 'border-transparent bg-success-bg text-success-fg line-through decoration-2'
+          ? 'border-transparent bg-success-bg text-success-fg line-through decoration-success-fg/70 decoration-1'
           : 'border-line bg-surface-2 text-ink hover:border-brand-500/70 hover:bg-surface',
       )}
     >

@@ -45,7 +45,7 @@ function HouseComponent({ number, marked, highlighted, onActivate }: HouseProps)
         'transition-[background-color,border-color,color,transform] duration-150',
         'active:scale-95',
         marked
-          ? 'border-transparent bg-success-bg text-success-fg line-through decoration-success-fg/60 decoration-2'
+          ? 'border-transparent bg-success-bg text-success-fg line-through decoration-success-fg/70 decoration-1'
           : 'border-line bg-surface-2 text-ink hover:border-brand-500/60 hover:bg-surface',
         highlighted && 'ring-2 ring-brand-400 ring-offset-2 ring-offset-bg',
         highlighted && !marked && 'animate-pulse-ring',
