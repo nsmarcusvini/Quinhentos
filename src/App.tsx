@@ -1,4 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
+import { ToastProvider } from './components/ui/Toast'
+import AppPage from './routes/app/AppPage'
 import { ChallengeProvider } from './state/ChallengeContext'
 import { useThemeEffect } from './state/useTheme'
 
@@ -8,7 +10,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<div className="p-8">Landing</div>} />
-      <Route path="/app" element={<div className="p-8">Desafio</div>} />
+      <Route path="/app" element={<AppPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
@@ -17,7 +19,9 @@ function AppRoutes() {
 export default function App() {
   return (
     <ChallengeProvider>
-      <AppRoutes />
+      <ToastProvider>
+        <AppRoutes />
+      </ToastProvider>
     </ChallengeProvider>
   )
 }
