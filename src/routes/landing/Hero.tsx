@@ -101,8 +101,8 @@ export function Hero({ stats }: { stats: ChallengeStats }) {
         </div>
 
         <p className="mt-6 text-sm text-muted">
-          <span className="num font-semibold text-ink">{formatCurrency(PRICE_BRL)}</span> uma vez.
-          Não existe plano mensal, renovação nem cobrança surpresa.
+          <span className="num font-semibold text-ink">{formatCurrency(PRICE_BRL)}</span> uma vez,
+          no Pix ou no cartão. Não existe plano mensal, renovação nem cobrança surpresa.
         </p>
       </div>
     </section>

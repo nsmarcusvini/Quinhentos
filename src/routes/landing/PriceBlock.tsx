@@ -56,6 +56,7 @@ export function PriceBlock({ stats }: { stats: ChallengeStats }) {
 
             <div className="mt-6 flex flex-col gap-2 text-left sm:mx-auto sm:max-w-sm">
               {[
+                'Pix ou cartão — no Pix o acesso libera na hora',
                 `${GUARANTEE_DAYS} dias de garantia — não gostou, devolvo o valor`,
                 'Sem mensalidade, sem renovação automática',
                 'Sem anúncio e sem conexão com o seu banco',

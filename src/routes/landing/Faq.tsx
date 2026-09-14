@@ -7,10 +7,16 @@ import { GUARANTEE_DAYS, PRICE_BRL, SUPPORT_EMAIL } from '../../lib/pricing'
 
 const QUESTIONS: readonly { id: string; question: string; answer: string }[] = [
   {
+    id: 'formas-de-pagamento',
+    question: 'Quais formas de pagamento você aceita?',
+    answer:
+      'Pix e cartão de crédito. No Pix o QR code aparece dentro do próprio app — você não sai para lugar nenhum — e o acesso libera assim que o pagamento cai, normalmente em segundos. No cartão, o acesso libera na hora da aprovação.',
+  },
+  {
     id: 'cobranca',
     question: `${formatCurrency(PRICE_BRL)} é uma vez só mesmo? Não vem cobrança depois?`,
     answer:
-      'Uma vez só. Não existe plano mensal, renovação automática, versão premium ou upsell depois. Você paga, recebe o acesso e ele é seu — inclusive se trocar de celular. Se algum dia aparecer uma cobrança recorrente com esse nome no seu cartão, não fui eu.',
+      'Uma vez só. Não existe plano mensal, renovação automática, versão premium ou upsell depois. Você paga — no Pix ou no cartão — recebe o acesso e ele é seu, inclusive se trocar de celular. Se algum dia aparecer uma cobrança recorrente com esse nome no seu cartão, não fui eu.',
   },
   {
     id: 'garantia',

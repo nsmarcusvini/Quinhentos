@@ -49,7 +49,7 @@ export function CtaButton({
 
       {reassurance && (
         <p className={cn('mt-2 text-xs text-muted', fullWidth && 'text-center')}>
-          Pagamento único · acesso vitalício · {GUARANTEE_DAYS} dias de garantia
+          Pix ou cartão · pagamento único · {GUARANTEE_DAYS} dias de garantia
         </p>
       )}
     </div>

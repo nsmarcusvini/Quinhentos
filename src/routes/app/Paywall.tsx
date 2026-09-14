@@ -122,6 +122,7 @@ export function Paywall({ stats, onUnlock, revogada }: PaywallProps) {
 
           <div className="mt-4 space-y-1.5">
             {[
+              'Pix libera na hora, sem sair do app',
               `${GUARANTEE_DAYS} dias de garantia`,
               'Sem mensalidade e sem renovação',
               'Funciona offline depois de instalado',
