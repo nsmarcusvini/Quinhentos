@@ -52,8 +52,18 @@ export async function resgatarLicenca(sessionId: string): Promise<string> {
   return key
 }
 
-/** Confere no servidor se uma chave colada à mão existe de verdade. */
-export async function validarLicencaNoServidor(key: string): Promise<boolean> {
-  const { valida } = await chamar<{ valida: boolean }>('validar-licenca', { key })
-  return valida === true
+/** Por que o servidor recusou uma chave. */
+export type MotivoRecusa = 'formato' | 'inexistente' | 'revogada' | 'indisponivel'
+
+export interface ResultadoValidacao {
+  valida: boolean
+  motivo?: MotivoRecusa
+}
+
+/** Confere no servidor se uma chave existe e ainda vale. */
+export async function validarLicencaNoServidor(key: string): Promise<ResultadoValidacao> {
+  const resposta = await chamar<{ valida: boolean; motivo?: MotivoRecusa }>('validar-licenca', {
+    key,
+  })
+  return { valida: resposta.valida === true, motivo: resposta.motivo }
 }

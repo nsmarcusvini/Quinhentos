@@ -3,22 +3,31 @@ import { Link } from 'react-router-dom'
 import { Button } from '../../components/ui/Button'
 import { ArrowRightIcon, CheckIcon } from '../../components/ui/icons'
 import { trackEvent } from '../../lib/analytics'
-import { criarCheckout } from '../../lib/api'
+import { criarCheckout, type MotivoRecusa } from '../../lib/api'
 import { cn } from '../../lib/cn'
 import { formatCurrency, formatCurrencyCompact } from '../../lib/format'
-import { GUARANTEE_DAYS, PRICE_BRL } from '../../lib/pricing'
+import { GUARANTEE_DAYS, PRICE_BRL, SUPPORT_EMAIL } from '../../lib/pricing'
 import { HOUSE_COUNT, TOTAL_AMOUNT } from '../../lib/constants'
 import type { ChallengeStats } from '../../state/useStats'
 
 interface PaywallProps {
   stats: ChallengeStats
-  onUnlock: (key: string) => Promise<boolean>
+  onUnlock: (key: string) => Promise<{ valida: boolean; motivo?: MotivoRecusa }>
+  /** true quando o acesso caiu por reembolso ou contestação. */
+  revogada?: boolean
+}
+
+const MENSAGENS: Record<MotivoRecusa, string> = {
+  formato: 'Formato inválido. A chave tem o padrão D500-0000-0000-0000.',
+  inexistente: 'Chave não encontrada. Confira o e-mail da compra e tente de novo.',
+  revogada: 'Esta chave foi cancelada porque a compra foi reembolsada ou contestada.',
+  indisponivel: 'Não consegui conferir a chave agora. Verifique sua conexão e tente de novo.',
 }
 
 /** Chave de desenvolvimento, aceita só em dev pelo formato padrão. */
 const DEV_KEY = 'D500-DEV0-DEV0-DEV0'
 
-export function Paywall({ stats, onUnlock }: PaywallProps) {
+export function Paywall({ stats, onUnlock, revogada }: PaywallProps) {
   const fieldId = useId()
   const [value, setValue] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -42,9 +51,11 @@ export function Paywall({ stats, onUnlock }: PaywallProps) {
   const submit = async (rawKey: string) => {
     setChecking(true)
     setError(null)
-    const ok = await onUnlock(rawKey)
+    const resultado = await onUnlock(rawKey)
     setChecking(false)
-    if (!ok) setError('Chave inválida. Confira o e-mail da compra e tente de novo.')
+    if (!resultado.valida) {
+      setError(MENSAGENS[resultado.motivo ?? 'inexistente'])
+    }
   }
 
   return (
@@ -56,6 +67,16 @@ export function Paywall({ stats, onUnlock }: PaywallProps) {
         >
           ← Desafio 500
         </Link>
+
+        {revogada && (
+          <div className="mt-5 rounded-2xl border border-danger/40 bg-danger/10 p-4">
+            <p className="text-sm font-semibold text-ink">Seu acesso foi encerrado</p>
+            <p className="mt-1 text-xs leading-relaxed text-muted">
+              A compra desta chave foi reembolsada ou contestada. Seu progresso continua salvo
+              neste aparelho — se foi engano, escreva para {SUPPORT_EMAIL}.
+            </p>
+          </div>
+        )}
 
         {stats.markedCount > 0 ? (
           <div className="mt-5 rounded-2xl border border-brand-500/30 bg-brand-500/5 p-4">

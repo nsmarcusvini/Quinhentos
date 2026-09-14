@@ -51,7 +51,7 @@ Deno.serve(async (req: Request) => {
   const supabase = createClient(supabaseUrl, serviceRole)
   const { data, error } = await supabase
     .from('licenses')
-    .select('key')
+    .select('key, revoked_at')
     .eq('key', normalizada)
     .maybeSingle()
 
@@ -60,7 +60,11 @@ Deno.serve(async (req: Request) => {
     return json({ erro: 'falha_na_consulta' }, 500)
   }
 
-  if (!data) return json({ valida: false }, 200)
+  if (!data) return json({ valida: false, motivo: 'inexistente' }, 200)
+
+  // Reembolsada ou contestada: a linha continua no banco para auditoria, mas
+  // deixa de destravar. O motivo vai separado para a tela explicar direito.
+  if (data.revoked_at) return json({ valida: false, motivo: 'revogada' }, 200)
 
   await supabase
     .from('licenses')

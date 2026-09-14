@@ -1,5 +1,5 @@
-import { useCallback, useState } from 'react'
-import { validarLicencaNoServidor } from '../lib/api'
+import { useCallback, useEffect, useState } from 'react'
+import { validarLicencaNoServidor, type MotivoRecusa } from '../lib/api'
 
 /**
  * Licença de acesso vitalício.
@@ -55,24 +55,28 @@ export const isWellFormedKey = (raw: string): boolean =>
  * que consulta a tabela `licenses` — sem isso qualquer um inventaria uma chave
  * no formato certo e entraria sem pagar.
  */
-export async function validateLicense(raw: string): Promise<boolean> {
-  if (!isWellFormedKey(raw)) return false
+export async function validateLicense(
+  raw: string,
+): Promise<{ valida: boolean; motivo?: MotivoRecusa }> {
+  if (!isWellFormedKey(raw)) return { valida: false, motivo: 'formato' }
 
   try {
     return await validarLicencaNoServidor(normalizeLicenseKey(raw))
   } catch (erro) {
     console.warn('[Desafio 500] Não foi possível validar a licença agora.', erro)
-    return false
+    return { valida: false, motivo: 'indisponivel' }
   }
 }
 
 interface Entitlement {
   status: EntitlementStatus
   license: License | null
-  /** Valida e, se passar, grava. Devolve se liberou. */
-  unlock: (rawKey: string) => Promise<boolean>
+  /** Valida e, se passar, grava. Devolve se liberou e por que não. */
+  unlock: (rawKey: string) => Promise<{ valida: boolean; motivo?: MotivoRecusa }>
   /** Remove a licença deste aparelho. */
   lock: () => void
+  /** true quando o acesso caiu por reembolso ou contestação. */
+  revogada: boolean
 }
 
 export function useEntitlement(): Entitlement {
@@ -81,11 +85,14 @@ export function useEntitlement(): Entitlement {
   // pisca uma tela vazia e re-renderiza à toa a cada montagem.
   const [license, setLicense] = useState<License | null>(readLicense)
 
+  const [revogada, setRevogada] = useState(false)
+
   const unlock = useCallback(async (rawKey: string) => {
     const key = normalizeLicenseKey(rawKey)
-    const valid = await validateLicense(key)
-    if (!valid) return false
+    const resultado = await validateLicense(key)
+    if (!resultado.valida) return resultado
 
+    setRevogada(false)
     const next: License = { key, unlockedAt: Date.now() }
     try {
       window.localStorage.setItem(LICENSE_KEY, JSON.stringify(next))
@@ -93,7 +100,7 @@ export function useEntitlement(): Entitlement {
       // Modo privado ou cota cheia: libera a sessão atual mesmo sem persistir.
     }
     setLicense(next)
-    return true
+    return resultado
   }, [])
 
   const lock = useCallback(() => {
@@ -105,5 +112,33 @@ export function useEntitlement(): Entitlement {
     setLicense(null)
   }, [])
 
-  return { status: license ? 'liberado' : 'bloqueado', license, unlock, lock }
+  /**
+   * Reconfere a licença ao abrir o app — é o que faz o reembolso valer para
+   * quem já tinha destravado.
+   *
+   * Só tranca quando o servidor diz explicitamente "revogada". Erro de rede,
+   * servidor fora do ar ou aparelho offline mantêm o acesso: o app promete
+   * funcionar sem internet, e perder o desafio por causa de um túnel seria
+   * pior do que um reembolsado usar mais um tempo.
+   */
+  useEffect(() => {
+    if (!license) return
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) return
+
+    let cancelado = false
+    void (async () => {
+      const resultado = await validateLicense(license.key)
+      if (cancelado) return
+      if (!resultado.valida && resultado.motivo === 'revogada') {
+        setRevogada(true)
+        lock()
+      }
+    })()
+
+    return () => {
+      cancelado = true
+    }
+  }, [license, lock])
+
+  return { status: license ? 'liberado' : 'bloqueado', license, unlock, lock, revogada }
 }

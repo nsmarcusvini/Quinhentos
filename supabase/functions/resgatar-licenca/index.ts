@@ -85,9 +85,13 @@ Deno.serve(async (req: Request) => {
   // Já emitida? Devolve a mesma (o webhook pode ter chegado primeiro).
   const { data: existente } = await supabase
     .from('licenses')
-    .select('key')
+    .select('key, revoked_at')
     .eq('stripe_session_id', sessionId)
     .maybeSingle()
+
+  if (existente?.revoked_at) {
+    return json({ erro: 'licenca_revogada' }, 410)
+  }
 
   if (existente) {
     await supabase.from('licenses').update({ last_seen_at: agora }).eq('key', existente.key)
