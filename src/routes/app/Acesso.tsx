@@ -5,7 +5,7 @@ import { CheckIcon } from '../../components/ui/icons'
 import { trackEvent } from '../../lib/analytics'
 import { resgatarLicenca } from '../../lib/api'
 import { SUPPORT_EMAIL } from '../../lib/pricing'
-import { useEntitlement } from '../../state/useEntitlement'
+import { useEntitlement } from '../../state/EntitlementContext'
 
 type Situacao = 'resgatando' | 'pronto' | 'erro'
 

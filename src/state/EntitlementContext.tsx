@@ -1,4 +1,12 @@
-import { useCallback, useEffect, useState } from 'react'
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react'
 import { validarLicencaNoServidor, vincularLicenca, type MotivoRecusa } from '../lib/api'
 import { supabase } from '../lib/supabase'
 import { useAuth } from './AuthContext'
@@ -83,7 +91,14 @@ interface Entitlement {
   consultandoConta: boolean
 }
 
-export function useEntitlement(): Entitlement {
+const EntitlementContext = createContext<Entitlement | null>(null)
+
+/**
+ * Provider, e não hook solto: AppPage, Acesso e SettingsPanel consomem isto.
+ * Como hook, cada um rodava a própria re-checagem de licença — o log mostrou
+ * `validar-licenca` sendo chamada 8 vezes numa única sessão, onde 1 basta.
+ */
+export function EntitlementProvider({ children }: { children: ReactNode }) {
   const { usuario } = useAuth()
   // Inicialização preguiçosa, como o ChallengeProvider faz com loadState: lê o
   // storage antes do primeiro render em vez de num efeito. Sem isso o app
@@ -127,13 +142,15 @@ export function useEntitlement(): Entitlement {
    * funcionar sem internet, e perder o desafio por causa de um túnel seria
    * pior do que um reembolsado usar mais um tempo.
    */
+  const chave = license?.key ?? null
+
   useEffect(() => {
-    if (!license) return
+    if (!chave) return
     if (typeof navigator !== 'undefined' && navigator.onLine === false) return
 
     let cancelado = false
     void (async () => {
-      const resultado = await validateLicense(license.key)
+      const resultado = await validateLicense(chave)
       if (cancelado) return
       if (!resultado.valida && resultado.motivo === 'revogada') {
         setRevogada(true)
@@ -144,7 +161,9 @@ export function useEntitlement(): Entitlement {
     return () => {
       cancelado = true
     }
-  }, [license, lock])
+    // Depende da CHAVE, não do objeto `license`: o objeto ganha identidade nova
+    // a cada setLicense e faria a checagem repetir sem a chave ter mudado.
+  }, [chave, lock])
 
   /**
    * Entrar na conta destrava o app sem precisar da chave — é o principal
@@ -200,12 +219,23 @@ export function useEntitlement(): Entitlement {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [usuario])
 
-  return {
-    status: license ? 'liberado' : 'bloqueado',
-    license,
-    unlock,
-    lock,
-    revogada,
-    consultandoConta,
-  }
+  const valor = useMemo<Entitlement>(
+    () => ({
+      status: license ? 'liberado' : 'bloqueado',
+      license,
+      unlock,
+      lock,
+      revogada,
+      consultandoConta,
+    }),
+    [license, unlock, lock, revogada, consultandoConta],
+  )
+
+  return <EntitlementContext.Provider value={valor}>{children}</EntitlementContext.Provider>
+}
+
+export function useEntitlement(): Entitlement {
+  const contexto = useContext(EntitlementContext)
+  if (!contexto) throw new Error('useEntitlement precisa estar dentro de <EntitlementProvider>.')
+  return contexto
 }

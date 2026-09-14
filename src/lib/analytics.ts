@@ -1,18 +1,52 @@
 /**
- * Camada fina de analytics de funil.
+ * Analytics de funil via Plausible.
  *
- * Não embute nenhum provedor: se existir um `window.plausible` (script add-on
- * no index.html), os eventos vão para lá; senão viram `console.debug` em dev e
- * no-op em produção. Isso deixa a página instrumentada desde já e adiar a
- * escolha do provedor não custa nada.
+ * Escolhido por ser sem cookie e sem dado pessoal — coerente com o que a
+ * landing promete. Sem `VITE_ANALYTICS_DOMAIN` configurado, tudo vira no-op:
+ * o app funciona igual, só não mede.
  *
  * Regra: nunca passar dado pessoal aqui. Só números e rótulos de posição.
  */
 
 type EventProps = Record<string, string | number | boolean>
 
+interface FilaPlausible {
+  (event: string, options?: { props?: EventProps }): void
+  q?: unknown[]
+}
+
 interface PlausibleWindow {
-  plausible?: (event: string, options?: { props?: EventProps }) => void
+  plausible?: FilaPlausible
+}
+
+const DOMINIO = import.meta.env.VITE_ANALYTICS_DOMAIN
+const SCRIPT = import.meta.env.VITE_ANALYTICS_SRC || 'https://plausible.io/js/script.js'
+
+/**
+ * Injeta o Plausible e cria a fila de eventos.
+ *
+ * A fila (`plausible.q`) é o padrão documentado por eles: sem ela, todo evento
+ * disparado antes do script terminar de carregar se perde — e o `landing_view`
+ * acontece justamente nesse intervalo.
+ */
+export function iniciarAnalytics(): void {
+  if (typeof window === 'undefined' || !DOMINIO) return
+  if (document.querySelector('script[data-domain]')) return
+
+  const alvo = window as unknown as PlausibleWindow
+  alvo.plausible =
+    alvo.plausible ||
+    (function (...args: unknown[]) {
+      const fila = (alvo.plausible as FilaPlausible)
+      fila.q = fila.q || []
+      fila.q.push(args)
+    } as unknown as FilaPlausible)
+
+  const script = document.createElement('script')
+  script.defer = true
+  script.dataset.domain = DOMINIO
+  script.src = SCRIPT
+  document.head.appendChild(script)
 }
 
 export type FunnelEvent =
@@ -38,6 +72,9 @@ export function trackEvent(event: FunnelEvent, props?: EventProps): void {
     console.debug('[funil]', event, props ?? {})
   }
 }
+
+/** true quando os eventos estão realmente saindo daqui. */
+export const analyticsAtivo = (): boolean => Boolean(DOMINIO)
 
 /**
  * Dispara um evento uma única vez por carregamento de página.

@@ -185,6 +185,15 @@ export function Paywall({ stats, onUnlock, revogada }: PaywallProps) {
           )}
         </div>
 
+        <nav aria-label="Documentos" className="mt-8 flex justify-center gap-5 text-xs text-muted">
+          <Link to="/termos" className="underline underline-offset-2 hover:text-ink">
+            Termos de uso
+          </Link>
+          <Link to="/privacidade" className="underline underline-offset-2 hover:text-ink">
+            Privacidade
+          </Link>
+        </nav>
+
         {import.meta.env.DEV && (
           <button
             type="button"

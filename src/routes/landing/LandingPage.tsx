@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { trackOnce } from '../../lib/analytics'
 import { useStats } from '../../state/useStats'
 import type { ChallengeStats } from '../../state/useStats'
@@ -54,6 +55,14 @@ export default function LandingPage() {
           Desafio 500 — pagamento único, sem mensalidade. O progresso do seu desafio fica salvo no
           seu aparelho.
         </p>
+        <nav aria-label="Documentos" className="mt-4 flex justify-center gap-5">
+          <Link to="/termos" className="underline underline-offset-2 hover:text-ink">
+            Termos de uso
+          </Link>
+          <Link to="/privacidade" className="underline underline-offset-2 hover:text-ink">
+            Privacidade
+          </Link>
+        </nav>
       </footer>
 
       <StickyCta stats={stats} />

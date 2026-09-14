@@ -7,6 +7,7 @@ import { useRouteEffects } from './hooks/useRouteEffects'
 import LandingPage from './routes/landing/LandingPage'
 import { AuthProvider } from './state/AuthContext'
 import { ChallengeProvider } from './state/ChallengeContext'
+import { EntitlementProvider } from './state/EntitlementContext'
 import { SyncProvider } from './state/SyncContext'
 import { useThemeEffect } from './state/useTheme'
 
@@ -14,6 +15,8 @@ import { useThemeEffect } from './state/useTheme'
 // nem mostrar "Carregando…" no primeiro contato. O app fica lazy.
 const AppPage = lazy(() => import('./routes/app/AppPage'))
 const Acesso = lazy(() => import('./routes/app/Acesso'))
+const Termos = lazy(() => import('./routes/legal/Termos'))
+const Privacidade = lazy(() => import('./routes/legal/Privacidade'))
 
 function RouteFallback() {
   return (
@@ -43,6 +46,8 @@ function AppRoutes() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/app" element={<AppPage />} />
           <Route path="/acesso" element={<Acesso />} />
+          <Route path="/termos" element={<Termos />} />
+          <Route path="/privacidade" element={<Privacidade />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>
@@ -54,13 +59,15 @@ export default function App() {
   return (
     <AuthProvider>
       <ChallengeProvider>
-        <SyncProvider>
+        <EntitlementProvider>
+          <SyncProvider>
           <ConfettiProvider>
             <ToastProvider>
               <AppRoutes />
             </ToastProvider>
-          </ConfettiProvider>
-        </SyncProvider>
+            </ConfettiProvider>
+          </SyncProvider>
+        </EntitlementProvider>
       </ChallengeProvider>
     </AuthProvider>
   )

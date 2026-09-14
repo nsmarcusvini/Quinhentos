@@ -15,7 +15,7 @@ import { backupFilename, downloadJson } from '../../lib/download'
 import { formatInteger, pluralize } from '../../lib/format'
 import { GUARANTEE_DAYS, SUPPORT_EMAIL } from '../../lib/pricing'
 import { useChallenge } from '../../state/ChallengeContext'
-import { useEntitlement } from '../../state/useEntitlement'
+import { useEntitlement } from '../../state/EntitlementContext'
 import { parseBackup } from '../../state/storage'
 import type { ChallengeState, ThemePreference } from '../../state/types'
 
