@@ -14,6 +14,9 @@ import { chamar } from './api'
 export interface AdminUsuario {
   id: string
   email: string | null
+  /** Do cadastro. Null em conta criada antes de o formulário pedir. */
+  nome: string | null
+  idade: number | null
   criadoEm: string
   ultimoLoginEm: string | null
   confirmadoEm: string | null

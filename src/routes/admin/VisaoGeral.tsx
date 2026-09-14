@@ -107,7 +107,12 @@ export function VisaoGeral({
               {ultimosCadastros.map((usuario) => (
                 <li key={usuario.id} className="flex items-center gap-3 px-4 py-3">
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-ink">{usuario.email ?? usuario.id}</p>
+                    {/* Nome quando existe: numa lista curta de "quem chegou",
+                        "Marcus" diz mais de relance que o e-mail. O e-mail
+                        continua na aba de Usuários. */}
+                    <p className="truncate text-sm font-medium text-ink">
+                      {usuario.nome ?? usuario.email ?? usuario.id}
+                    </p>
                     <p className="text-xs text-muted">
                       {formatDateTime(new Date(usuario.criadoEm))}
                       {usuario.desafio && usuario.desafio.marcadas > 0

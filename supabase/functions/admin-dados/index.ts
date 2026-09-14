@@ -9,7 +9,7 @@
  * quem está logado. Isso é proposital e não vai mudar — um painel que
  * precisasse afrouxar a RLS transformaria a anon key, que é pública, em chave
  * de leitura da base de clientes. Aqui o service_role fica no servidor e o
- * portão é o e-mail do JWT contra a lista de administradores.
+ * portão é o ID do JWT contra a lista de administradores.
  *
  * Só lê. Nenhuma rota deste arquivo altera licença, conta ou desafio — a única
  * escrita é o cache da forma de pagamento, que é dado derivado da Stripe.
@@ -125,6 +125,31 @@ interface UsuarioAuth {
   created_at: string
   last_sign_in_at?: string | null
   email_confirmed_at?: string | null
+  /** Nome e idade, preenchidos no cadastro. */
+  user_metadata?: Record<string, unknown> | null
+}
+
+/**
+ * Lê nome e idade do metadata da conta.
+ *
+ * O `user_metadata` é escrito pelo próprio navegador no `signUp` — quem cria a
+ * conta manda o que quiser ali. Por isso nada aqui confia no formato: conta
+ * anterior ao formulário novo não tem os campos, e uma inventada à mão pode ter
+ * qualquer coisa neles. O painel prefere mostrar "—" a exibir lixo.
+ */
+function lerPerfil(metadata: Record<string, unknown> | null | undefined): {
+  nome: string | null
+  idade: number | null
+} {
+  if (!metadata) return { nome: null, idade: null }
+
+  const nome = typeof metadata.nome === 'string' ? metadata.nome.trim().slice(0, 80) : ''
+
+  // Number() porque uma conta antiga pode ter gravado a idade como texto.
+  const bruta = Number(metadata.idade)
+  const idade = Number.isFinite(bruta) && bruta > 0 && bruta < 150 ? Math.trunc(bruta) : null
+
+  return { nome: nome || null, idade }
 }
 
 /**
@@ -293,6 +318,7 @@ Deno.serve(async (req: Request) => {
       usuarios: usuarios.map((conta) => ({
         id: conta.id,
         email: conta.email ?? null,
+        ...lerPerfil(conta.user_metadata),
         criadoEm: conta.created_at,
         ultimoLoginEm: conta.last_sign_in_at ?? null,
         confirmadoEm: conta.email_confirmed_at ?? null,

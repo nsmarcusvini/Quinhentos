@@ -61,6 +61,7 @@ export function UsuariosPanel({ dados }: { dados: AdminDados }) {
       if (somentePagantes && !linha.licenca) return false
       if (!termo) return true
       return (
+        (linha.usuario.nome ?? '').toLowerCase().includes(termo) ||
         (linha.usuario.email ?? '').toLowerCase().includes(termo) ||
         linha.usuario.id.toLowerCase().includes(termo) ||
         (linha.licenca?.key ?? '').toLowerCase().includes(termo)
@@ -79,6 +80,8 @@ export function UsuariosPanel({ dados }: { dados: AdminDados }) {
   const exportar = () => {
     downloadCsv(nomeComData('usuarios-desafio500'), [
       [
+        'nome',
+        'idade',
         'email',
         'id',
         'cadastro',
@@ -93,6 +96,8 @@ export function UsuariosPanel({ dados }: { dados: AdminDados }) {
         'ultima marcacao',
       ],
       ...visiveis.map((linha) => [
+        linha.usuario.nome ?? '',
+        linha.usuario.idade ?? '',
         linha.usuario.email ?? '',
         linha.usuario.id,
         linha.usuario.criadoEm,
@@ -124,7 +129,7 @@ export function UsuariosPanel({ dados }: { dados: AdminDados }) {
           type="search"
           value={busca}
           onChange={(evento) => setBusca(evento.target.value)}
-          placeholder="Buscar por e-mail, id ou chave"
+          placeholder="Buscar por nome, e-mail, id ou chave"
           aria-label="Buscar usuário"
           className="min-h-[44px] flex-1 rounded-xl border border-line bg-surface px-3 text-sm text-ink placeholder:text-muted"
         />
@@ -156,7 +161,8 @@ export function UsuariosPanel({ dados }: { dados: AdminDados }) {
       ) : (
         <Tabela
           cabecalho={[
-            'E-mail',
+            'Pessoa',
+            'Idade',
             'Cadastro',
             'Acesso',
             'Progresso',
@@ -170,11 +176,23 @@ export function UsuariosPanel({ dados }: { dados: AdminDados }) {
 
             return (
               <tr key={linha.usuario.id} className="hover:bg-surface-2/60">
+                {/* Nome e e-mail na mesma célula: são a mesma pergunta ("quem
+                    é?") e separá-los em duas colunas só empurraria a tabela
+                    para o lado numa tela que já rola na horizontal. */}
                 <Celula>
-                  <span className="font-medium text-ink">{linha.usuario.email ?? '—'}</span>
+                  <span className="font-medium text-ink">
+                    {linha.usuario.nome ?? linha.usuario.email ?? '—'}
+                  </span>
                   {!linha.usuario.confirmadoEm && (
                     <span className="ml-2 text-xs text-muted">(não confirmou)</span>
                   )}
+                  {linha.usuario.nome && (
+                    <span className="block text-xs text-muted">{linha.usuario.email ?? '—'}</span>
+                  )}
+                </Celula>
+
+                <Celula className="num text-muted">
+                  {linha.usuario.idade === null ? '—' : `${formatInteger(linha.usuario.idade)} anos`}
                 </Celula>
 
                 <Celula className="text-muted">{formatDate(new Date(linha.usuario.criadoEm))}</Celula>
