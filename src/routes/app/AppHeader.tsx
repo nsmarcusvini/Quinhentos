@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { ProgressBar } from '../../components/ui/ProgressBar'
-import { ChartIcon, HistoryIcon, SettingsIcon } from '../../components/ui/icons'
+import { ChartIcon, HistoryIcon, SettingsIcon, UserIcon } from '../../components/ui/icons'
 import { formatCurrency, formatPercent, pluralize } from '../../lib/format'
 import type { ChallengeStats } from '../../state/useStats'
 import type { PanelId } from './panels'
@@ -15,6 +15,7 @@ const ACTIONS: readonly { id: PanelId; label: string; Icon: typeof ChartIcon }[]
   { id: 'stats', label: 'Estatísticas', Icon: ChartIcon },
   { id: 'history', label: 'Histórico', Icon: HistoryIcon },
   { id: 'settings', label: 'Configurações', Icon: SettingsIcon },
+  { id: 'conta', label: 'Minha conta', Icon: UserIcon },
 ]
 
 export function AppHeader({ challengeName, stats, onOpenPanel }: AppHeaderProps) {

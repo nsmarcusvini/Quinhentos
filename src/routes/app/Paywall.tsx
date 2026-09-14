@@ -147,7 +147,8 @@ export function Paywall({ stats, onUnlock, revogada }: PaywallProps) {
             Já comprou? Cole sua chave de acesso
           </label>
           <p className="mt-0.5 text-xs text-muted">
-            Ela chega por e-mail logo depois da compra, no formato D500-0000-0000-0000.
+            Ela aparece na tela logo depois da compra e fica guardada nas Configurações, no
+            formato D500-0000-0000-0000. Se você já tem conta, entrar nela também destrava.
           </p>
 
           <form

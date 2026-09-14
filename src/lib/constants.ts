@@ -22,6 +22,6 @@ if (import.meta.env.DEV) {
 }
 
 export const STORAGE_KEY = 'desafio500:state'
-export const STATE_VERSION = 1
+export const STATE_VERSION = 2
 
 export const DEFAULT_CHALLENGE_NAME = 'Meu Desafio 500'

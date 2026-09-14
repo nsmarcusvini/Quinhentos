@@ -12,9 +12,12 @@ export function challengeReducer(
   switch (action.type) {
     case 'mark': {
       if (!isValidHouse(action.number) || state.entries[action.number]) return state
+      const removed = { ...state.removed }
+      delete removed[action.number]
       return {
         ...state,
         entries: { ...state.entries, [action.number]: action.at ?? Date.now() },
+        removed,
       }
     }
 
@@ -26,15 +29,24 @@ export function challengeReducer(
 
       const at = action.at ?? Date.now()
       const entries = { ...state.entries }
-      for (const value of pending) entries[value] = at
-      return { ...state, entries }
+      const removed = { ...state.removed }
+      for (const value of pending) {
+        entries[value] = at
+        delete removed[value]
+      }
+      return { ...state, entries, removed }
     }
 
     case 'unmark': {
       if (!state.entries[action.number]) return state
       const entries = { ...state.entries }
       delete entries[action.number]
-      return { ...state, entries }
+      // A lápide é o que faz a desmarcação sobreviver à sincronia.
+      return {
+        ...state,
+        entries,
+        removed: { ...state.removed, [action.number]: Date.now() },
+      }
     }
 
     case 'rename': {

@@ -15,6 +15,7 @@ import { backupFilename, downloadJson } from '../../lib/download'
 import { formatInteger, pluralize } from '../../lib/format'
 import { GUARANTEE_DAYS, SUPPORT_EMAIL } from '../../lib/pricing'
 import { useChallenge } from '../../state/ChallengeContext'
+import { useEntitlement } from '../../state/useEntitlement'
 import { parseBackup } from '../../state/storage'
 import type { ChallengeState, ThemePreference } from '../../state/types'
 
@@ -49,7 +50,9 @@ const inputClass =
 
 export function SettingsPanel() {
   const { state, rename, setTargetDate, setTheme, replaceState, reset } = useChallenge()
+  const { license } = useEntitlement()
   const showToast = useToast()
+  const [chaveCopiada, setChaveCopiada] = useState(false)
 
   const nameId = useId()
   const dateId = useId()
@@ -193,6 +196,32 @@ export function SettingsPanel() {
           </Button>
         </Field>
       </div>
+
+      {license && (
+        <div className="border-t border-line pt-5">
+          <Field
+            label="Sua chave de acesso"
+            hint="Destrava o app em outro aparelho. Guarde junto com o backup."
+          >
+            <div className="flex gap-2">
+              <p className="flex h-11 flex-1 select-all items-center rounded-xl border border-line bg-surface-2 px-3 font-mono text-sm text-ink">
+                {license.key}
+              </p>
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  void navigator.clipboard?.writeText(license.key).then(() => {
+                    setChaveCopiada(true)
+                    window.setTimeout(() => setChaveCopiada(false), 2000)
+                  })
+                }}
+              >
+                {chaveCopiada ? 'Copiada!' : 'Copiar'}
+              </Button>
+            </div>
+          </Field>
+        </div>
+      )}
 
       <div className="border-t border-line pt-5">
         <p className="text-xs uppercase tracking-wider text-muted">Sua compra</p>

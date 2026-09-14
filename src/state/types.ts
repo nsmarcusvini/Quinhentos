@@ -9,6 +9,14 @@ export interface ChallengeState {
   /** "AAAA-MM-DD" ou null quando o usuário não definiu prazo. */
   targetDate: string | null
   entries: Entries
+  /**
+   * Lápides: { [número]: timestamp de quando foi DESmarcada }.
+   *
+   * Sem isso a sincronia entre dois aparelhos seria só união de `entries`, e
+   * desmarcar num aparelho seria desfeito pelo outro na próxima sincronia.
+   * Uma casinha vale quando entries[n] existe e é mais recente que removed[n].
+   */
+  removed: Entries
   theme: ThemePreference
 }
 

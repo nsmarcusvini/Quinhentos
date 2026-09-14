@@ -6,6 +6,8 @@
  * que rodam com service_role e decidem o que pode sair.
  */
 
+import { supabase } from './supabase'
+
 const BASE_URL = import.meta.env.VITE_SUPABASE_URL
 const ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
 
@@ -16,12 +18,17 @@ async function chamar<T>(funcao: string, corpo: unknown): Promise<T> {
     throw new Error('VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY não estão definidas.')
   }
 
+  // Com sessão, manda o JWT do usuário: `vincular-licenca` precisa saber QUEM
+  // está chamando, e a anon key não identifica ninguém. Sem sessão, a anon key
+  // já serve — é um JWT válido e público.
+  const { data } = await supabase.auth.getSession()
+  const token = data.session?.access_token ?? ANON_KEY
+
   const resposta = await fetch(`${BASE_URL}/functions/v1/${funcao}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      // A função exige JWT; a anon key é um JWT válido e público.
-      Authorization: `Bearer ${ANON_KEY}`,
+      Authorization: `Bearer ${token}`,
       apikey: ANON_KEY,
     },
     body: JSON.stringify(corpo),
@@ -50,6 +57,11 @@ export async function criarCheckout(): Promise<string> {
 export async function resgatarLicenca(sessionId: string): Promise<string> {
   const { key } = await chamar<{ key: string }>('resgatar-licenca', { session_id: sessionId })
   return key
+}
+
+/** Amarra a chave à conta logada. Depois disso o login sozinho destrava. */
+export async function vincularLicenca(key: string): Promise<void> {
+  await chamar<{ vinculada: boolean }>('vincular-licenca', { key })
 }
 
 /** Por que o servidor recusou uma chave. */

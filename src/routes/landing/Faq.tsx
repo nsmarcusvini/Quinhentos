@@ -38,13 +38,13 @@ const QUESTIONS: readonly { id: string; question: string; answer: string }[] = [
     id: 'trocar-aparelho',
     question: 'Perco o acesso se trocar de celular ou limpar o navegador?',
     answer:
-      'Não. Sua compra gera uma chave de acesso que chega por e-mail — é só colar no aparelho novo. Para o progresso do desafio, use Configurações → Exportar JSON antes de trocar: o arquivo restaura tudo exatamente como estava.',
+      'Não. Crie uma conta gratuita dentro do app (Minha conta) e o desafio passa a ficar salvo na nuvem — no aparelho novo é só entrar com o mesmo e-mail e senha, e tudo volta. Sem conta, também dá: sua chave de acesso fica visível nas Configurações e o progresso sai em Exportar JSON.',
   },
   {
     id: 'dados',
     question: 'Onde ficam meus dados?',
     answer:
-      'As casinhas que você marca ficam no armazenamento local do seu navegador, no seu aparelho — não subem para servidor nenhum. A única coisa que sai do aparelho é a validação da chave de acesso, uma vez, no desbloqueio. Nem eu consigo ver quanto você guardou.',
+      'Por padrão, as casinhas ficam só no armazenamento local do seu navegador — não sobem para servidor nenhum. Se você criar a conta opcional, aí sim o desafio passa a ser copiado para a nuvem, porque é isso que permite recuperá-lo em outro aparelho. Você escolhe: sem conta, nada sai daqui.',
   },
   {
     id: 'offline',

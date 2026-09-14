@@ -1,5 +1,6 @@
 import { Sheet } from '../../components/ui/Sheet'
 import type { ChallengeStats } from '../../state/useStats'
+import { ContaPanel } from './ContaPanel'
 import { HistoryPanel } from './HistoryPanel'
 import { SettingsPanel } from './SettingsPanel'
 import { StatsPanel } from './StatsPanel'
@@ -16,6 +17,7 @@ const TITLES: Record<PanelId, string> = {
   stats: 'Estatísticas',
   history: 'Histórico',
   settings: 'Configurações',
+  conta: 'Minha conta',
 }
 
 export function AppPanels({ panel, stats, onClose, onUndo }: AppPanelsProps) {
@@ -24,6 +26,7 @@ export function AppPanels({ panel, stats, onClose, onUndo }: AppPanelsProps) {
       {panel === 'stats' && <StatsPanel stats={stats} />}
       {panel === 'history' && <HistoryPanel stats={stats} onUndo={onUndo} />}
       {panel === 'settings' && <SettingsPanel />}
+      {panel === 'conta' && <ContaPanel />}
     </Sheet>
   )
 }

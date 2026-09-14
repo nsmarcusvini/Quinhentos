@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
-import { validarLicencaNoServidor, type MotivoRecusa } from '../lib/api'
+import { validarLicencaNoServidor, vincularLicenca, type MotivoRecusa } from '../lib/api'
+import { supabase } from '../lib/supabase'
+import { useAuth } from './AuthContext'
 
 /**
  * Licença de acesso vitalício.
@@ -77,15 +79,19 @@ interface Entitlement {
   lock: () => void
   /** true quando o acesso caiu por reembolso ou contestação. */
   revogada: boolean
+  /** true enquanto a licença da conta ainda está sendo consultada. */
+  consultandoConta: boolean
 }
 
 export function useEntitlement(): Entitlement {
+  const { usuario } = useAuth()
   // Inicialização preguiçosa, como o ChallengeProvider faz com loadState: lê o
   // storage antes do primeiro render em vez de num efeito. Sem isso o app
   // pisca uma tela vazia e re-renderiza à toa a cada montagem.
   const [license, setLicense] = useState<License | null>(readLicense)
 
   const [revogada, setRevogada] = useState(false)
+  const [consultandoConta, setConsultandoConta] = useState(false)
 
   const unlock = useCallback(async (rawKey: string) => {
     const key = normalizeLicenseKey(rawKey)
@@ -140,5 +146,66 @@ export function useEntitlement(): Entitlement {
     }
   }, [license, lock])
 
-  return { status: license ? 'liberado' : 'bloqueado', license, unlock, lock, revogada }
+  /**
+   * Entrar na conta destrava o app sem precisar da chave — é o principal
+   * motivo de existir conta. A leitura é permitida pela RLS: a policy de
+   * `licenses` só devolve a linha de quem está logado.
+   *
+   * O caminho inverso também vale: se o aparelho já tem chave e a conta ainda
+   * não tem licença, a chave é vinculada aqui.
+   */
+  useEffect(() => {
+    if (!usuario) return
+
+    let cancelado = false
+    setConsultandoConta(true)
+
+    void (async () => {
+      try {
+        const { data } = await supabase
+          .from('licenses')
+          .select('key, revoked_at')
+          .eq('user_id', usuario.id)
+          .is('revoked_at', null)
+          .maybeSingle()
+
+        if (cancelado) return
+
+        if (data?.key) {
+          // A conta tem licença: grava no aparelho e pronto.
+          const proxima: License = { key: data.key, unlockedAt: Date.now() }
+          try {
+            window.localStorage.setItem(LICENSE_KEY, JSON.stringify(proxima))
+          } catch {
+            // Modo privado: vale só para esta sessão.
+          }
+          setLicense(proxima)
+          setRevogada(false)
+        } else if (license) {
+          // A conta ainda não tem licença, mas este aparelho tem: vincula.
+          await vincularLicenca(license.key).catch((erro) => {
+            console.warn('[Desafio 500] Não consegui vincular a chave à conta.', erro)
+          })
+        }
+      } finally {
+        if (!cancelado) setConsultandoConta(false)
+      }
+    })()
+
+    return () => {
+      cancelado = true
+    }
+    // `license` fica de fora de propósito: só interessa o valor no momento em
+    // que a conta entra, e incluí-lo criaria um laço com o setLicense acima.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [usuario])
+
+  return {
+    status: license ? 'liberado' : 'bloqueado',
+    license,
+    unlock,
+    lock,
+    revogada,
+    consultandoConta,
+  }
 }

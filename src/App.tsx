@@ -5,7 +5,9 @@ import { OfflineReadyNotice } from './components/OfflineReadyNotice'
 import { ToastProvider } from './components/ui/Toast'
 import { useRouteEffects } from './hooks/useRouteEffects'
 import LandingPage from './routes/landing/LandingPage'
+import { AuthProvider } from './state/AuthContext'
 import { ChallengeProvider } from './state/ChallengeContext'
+import { SyncProvider } from './state/SyncContext'
 import { useThemeEffect } from './state/useTheme'
 
 // A landing é página de vendas: entra no bundle inicial para não gastar LCP
@@ -50,12 +52,16 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <ChallengeProvider>
-      <ConfettiProvider>
-        <ToastProvider>
-          <AppRoutes />
-        </ToastProvider>
-      </ConfettiProvider>
-    </ChallengeProvider>
+    <AuthProvider>
+      <ChallengeProvider>
+        <SyncProvider>
+          <ConfettiProvider>
+            <ToastProvider>
+              <AppRoutes />
+            </ToastProvider>
+          </ConfettiProvider>
+        </SyncProvider>
+      </ChallengeProvider>
+    </AuthProvider>
   )
 }

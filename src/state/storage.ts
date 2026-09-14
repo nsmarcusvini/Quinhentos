@@ -12,6 +12,7 @@ export function createInitialState(): ChallengeState {
     challengeName: DEFAULT_CHALLENGE_NAME,
     targetDate: null,
     entries: {},
+    removed: {},
     theme: 'system',
   }
 }
@@ -60,13 +61,14 @@ function sanitizeTheme(value: unknown): ThemePreference {
 export function migrate(raw: unknown): ChallengeState {
   if (!isRecord(raw)) return createInitialState()
 
-  // v0 (hipotética, sem campo `version`) e v1 compartilham o mesmo shape básico;
-  // o saneamento abaixo cobre as duas.
+  // v1 não tinha `removed`; sanitizeEntries devolve {} para o campo ausente,
+  // que é exatamente o estado correto de "nada foi desmarcado ainda".
   return {
     version: STATE_VERSION,
     challengeName: sanitizeName(raw.challengeName),
     targetDate: sanitizeTargetDate(raw.targetDate),
     entries: sanitizeEntries(raw.entries),
+    removed: sanitizeEntries(raw.removed),
     theme: sanitizeTheme(raw.theme),
   }
 }
