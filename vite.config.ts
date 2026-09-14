@@ -10,10 +10,10 @@ export default defineConfig({
       includeAssets: ['favicon.svg', 'apple-touch-icon.png', 'og-image.png'],
       manifest: {
         id: '/',
-        name: 'Desafio 500 — Junte R$ 125.250',
-        short_name: 'Desafio 500',
+        name: 'Norte Financeiro — Junte R$ 125.250',
+        short_name: 'Norte',
         description:
-          'Desafio de poupança com 500 casinhas numeradas. Risque um número por vez e junte R$ 125.250.',
+          'Seu norte para juntar dinheiro: 500 casinhas numeradas, uma de cada vez, até R$ 125.250.',
         lang: 'pt-BR',
         dir: 'ltr',
         start_url: '/app',

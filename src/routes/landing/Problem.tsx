@@ -41,7 +41,7 @@ export function Problem() {
 
         <Reveal delay={0.3}>
           <p className="mt-8 rounded-2xl border border-brand-500/30 bg-brand-500/5 p-5 text-sm leading-relaxed text-ink sm:text-base">
-            O Desafio 500 ataca os três de uma vez: cada casinha riscada é{' '}
+            O Norte Financeiro ataca os três de uma vez: cada casinha riscada é{' '}
             <strong className="font-semibold">visível</strong>, a linha de chegada tem{' '}
             <strong className="font-semibold">{HOUSE_COUNT} passos contados</strong>, e pular uma
             semana <strong className="font-semibold">não quebra nada</strong> — a ordem é livre e

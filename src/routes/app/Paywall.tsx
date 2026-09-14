@@ -57,7 +57,7 @@ export function Paywall({ stats, revogada, assinaturaExpirada }: PaywallProps) {
     try {
       window.location.href = await criarCheckout(plano)
     } catch (erro) {
-      console.error('[Desafio 500] Falha ao abrir o checkout.', erro)
+      console.error('[Norte Financeiro] Falha ao abrir o checkout.', erro)
       // Sessão morta derruba o login sozinha e a tela volta ao passo 1, onde o
       // aviso explica o que houve — aqui sobram o gateway fora e o mensal que
       // ainda não foi criado no painel do Stripe.
@@ -77,7 +77,7 @@ export function Paywall({ stats, revogada, assinaturaExpirada }: PaywallProps) {
           to="/"
           className="text-[11px] font-semibold uppercase tracking-wider text-muted transition-colors duration-150 hover:text-accent"
         >
-          ← Desafio 500
+          ← Norte Financeiro
         </Link>
 
         {revogada && (

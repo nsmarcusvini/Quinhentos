@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from 'react'
 import { validarLicencaNoServidor, type MotivoRecusa } from '../lib/api'
+import { LEGACY_LICENSE_PREFIX, LICENSE_PREFIX, STORAGE_PREFIX } from '../lib/brand'
 import type { PlanoId } from '../lib/pricing'
 import { supabase } from '../lib/supabase'
 import { useAuth } from './AuthContext'
@@ -15,15 +16,24 @@ import { useAuth } from './AuthContext'
 /**
  * Licença de acesso vitalício.
  *
- * Guardada em chave PRÓPRIA do localStorage, separada de `desafio500:state`.
+ * Guardada em chave PRÓPRIA do localStorage, separada de `norte:state`.
  * Isso é deliberado: o estado do desafio tem migração versionada e é exportado
  * em backup pelo usuário — misturar a licença ali faria a chave vazar em todo
  * JSON compartilhado e complicaria a `migrate()`.
  */
-const LICENSE_KEY = 'desafio500:license'
+const LICENSE_KEY = `${STORAGE_PREFIX}:license`
+const LICENSE_KEY_ANTIGA = 'desafio500:license'
 
-/** Formato emitido no checkout: D500-XXXX-XXXX-XXXX */
-const LICENSE_PATTERN = /^D500-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/
+/**
+ * Formato emitido no checkout: NF-XXXX-XXXX-XXXX.
+ *
+ * O prefixo antigo continua aceito para sempre. Invalidar a chave de quem já
+ * pagou por causa de uma troca de nome seria inaceitável, e o custo de manter
+ * a alternativa é uma palavra nesta expressão.
+ */
+const LICENSE_PATTERN = new RegExp(
+  '^(' + LICENSE_PREFIX + '|' + LEGACY_LICENSE_PREFIX + ')-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$',
+)
 
 export interface License {
   key: string
@@ -51,7 +61,22 @@ function readLicense(): License | null {
   if (typeof window === 'undefined') return null
 
   try {
-    const raw = window.localStorage.getItem(LICENSE_KEY)
+    // Sem o fallback, a troca de nome apagaria o acesso de quem já tinha
+    // destravado: a chave nova nasceria vazia e o app pediria pagamento de
+    // novo a quem já pagou.
+    let raw = window.localStorage.getItem(LICENSE_KEY)
+
+    if (raw === null) {
+      // Instalacao da epoca do nome antigo: move o valor e APAGA a origem.
+      // Deixar a copia velha para tras faria uma licenca revogada ressuscitar
+      // dela no proximo carregamento, porque lock() so apaga a chave atual.
+      raw = window.localStorage.getItem(LICENSE_KEY_ANTIGA)
+      if (raw !== null) {
+        window.localStorage.setItem(LICENSE_KEY, raw)
+        window.localStorage.removeItem(LICENSE_KEY_ANTIGA)
+      }
+    }
+
     if (!raw) return null
 
     const parsed: unknown = JSON.parse(raw)
@@ -105,7 +130,7 @@ export async function validateLicense(
   try {
     return await validarLicencaNoServidor(normalizeLicenseKey(raw))
   } catch (erro) {
-    console.warn('[Desafio 500] Não foi possível validar a licença agora.', erro)
+    console.warn('[Norte Financeiro] Não foi possível validar a licença agora.', erro)
     return { valida: false, motivo: 'indisponivel' }
   }
 }
@@ -162,6 +187,7 @@ export function EntitlementProvider({ children }: { children: ReactNode }) {
   const lock = useCallback(() => {
     try {
       window.localStorage.removeItem(LICENSE_KEY)
+      window.localStorage.removeItem(LICENSE_KEY_ANTIGA)
     } catch {
       // Ignorado: o estado em memória abaixo já bloqueia.
     }

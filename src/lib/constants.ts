@@ -1,3 +1,5 @@
+import { STORAGE_PREFIX } from './brand'
+
 /** Quantidade de casinhas do desafio. */
 export const HOUSE_COUNT = 500
 
@@ -21,7 +23,8 @@ if (import.meta.env.DEV) {
   }
 }
 
-export const STORAGE_KEY = 'desafio500:state'
+export const STORAGE_KEY = `${STORAGE_PREFIX}:state`
+export const STORAGE_KEY_ANTIGA = 'desafio500:state'
 export const STATE_VERSION = 2
 
-export const DEFAULT_CHALLENGE_NAME = 'Meu Desafio 500'
+export const DEFAULT_CHALLENGE_NAME = 'Meu Norte Financeiro'

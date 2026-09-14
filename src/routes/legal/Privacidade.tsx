@@ -11,7 +11,7 @@ export default function Privacidade() {
   return (
     <DocumentoLegal titulo="Política de privacidade" atualizadoEm={ATUALIZADO_EM}>
       <p className="text-sm leading-relaxed text-muted">
-        Esta política explica quais dados o Desafio 500 trata, por quê, e o que você pode fazer a
+        Esta política explica quais dados o Norte Financeiro trata, por quê, e o que você pode fazer a
         respeito. O controlador dos dados é {CONTROLADOR}, inscrito no {DOCUMENTO}, contato{' '}
         {SUPPORT_EMAIL}.
       </p>

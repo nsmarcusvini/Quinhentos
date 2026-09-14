@@ -28,7 +28,45 @@ function gerarChave(): string {
     corpo += ALFABETO[bytes[i]! % ALFABETO.length]
     if (i === 3 || i === 7) corpo += '-'
   }
-  return `D500-${corpo}`
+  return `NF-${corpo}`
+}
+
+/**
+ * Descobre o plano da sessão e, no mensal, até quando o acesso vale.
+ *
+ * Sem isto esta função inseria sem `plan`, caindo no default `vitalicio`: quem
+ * assinasse por R$ 5,90/mês e voltasse do checkout antes do webhook levava uma
+ * licença vitalícia. O webhook faz a mesma conta; as duas precisam concordar,
+ * senão quem chega primeiro decide o que o cliente comprou.
+ */
+async function descobrirPlano(
+  sessao: { subscription?: unknown },
+  stripeKey: string,
+): Promise<{ plan: 'vitalicio' | 'mensal'; fim: string | null; assinaturaId: string | null }> {
+  const assinaturaId = typeof sessao.subscription === 'string' ? sessao.subscription : null
+  if (!assinaturaId) return { plan: 'vitalicio', fim: null, assinaturaId: null }
+
+  const resposta = await fetch(
+    `https://api.stripe.com/v1/subscriptions/${encodeURIComponent(assinaturaId)}`,
+    { headers: { Authorization: `Bearer ${stripeKey}` } },
+  )
+  if (!resposta.ok) throw new Error('assinatura_nao_encontrada')
+
+  const assinatura = await resposta.json()
+  // A Stripe moveu current_period_end da assinatura para os itens dela em
+  // versões recentes. Lê os dois lugares.
+  const bruto =
+    typeof assinatura.current_period_end === 'number'
+      ? assinatura.current_period_end
+      : assinatura.items?.data?.[0]?.current_period_end
+
+  if (typeof bruto !== 'number') throw new Error('assinatura_sem_fim_de_periodo')
+
+  return {
+    plan: 'mensal',
+    fim: new Date(bruto * 1000).toISOString(),
+    assinaturaId,
+  }
 }
 
 function json(body: unknown, status = 200): Response {
@@ -99,6 +137,17 @@ Deno.serve(async (req: Request) => {
     return json({ key: existente.key, ja_emitida: true })
   }
 
+  let plano: { plan: 'vitalicio' | 'mensal'; fim: string | null; assinaturaId: string | null }
+  try {
+    plano = await descobrirPlano(sessao, stripeKey)
+  } catch (erro) {
+    // Sem saber o plano, emitir seria chutar entre R$ 5,90/mês e vitalício.
+    // Melhor devolver pendente: o webhook emite com o dado certo, e a tela do
+    // /acesso já sabe esperar e perguntar de novo.
+    console.error('Não consegui determinar o plano da sessão:', erro)
+    return json({ erro: 'pagamento_pendente', status: 'plano_indeterminado' }, 402)
+  }
+
   const key = gerarChave()
   const { error } = await supabase.from('licenses').insert({
     key,
@@ -106,6 +155,9 @@ Deno.serve(async (req: Request) => {
     external_id: sessionId,
     stripe_session_id: sessionId,
     stripe_payment_intent: sessao.payment_intent ?? null,
+    stripe_subscription_id: plano.assinaturaId,
+    plan: plano.plan,
+    current_period_end: plano.fim,
     customer_email: sessao.customer_details?.email ?? sessao.customer_email ?? null,
     amount_total: sessao.amount_total ?? null,
     currency: sessao.currency ?? null,

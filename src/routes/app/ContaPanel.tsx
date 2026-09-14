@@ -38,7 +38,7 @@ function Assinatura({ expiraEm }: { expiraEm: string | null }) {
     try {
       window.location.href = await abrirPortal()
     } catch (problema) {
-      console.error('[Desafio 500] Falha ao abrir o portal de cobrança.', problema)
+      console.error('[Norte Financeiro] Falha ao abrir o portal de cobrança.', problema)
       setErro(`Não consegui abrir agora. Se precisar cancelar, escreva para ${SUPPORT_EMAIL}.`)
       setAbrindo(false)
     }

@@ -28,7 +28,7 @@ export function BarraTopo() {
           ))}
         </div>
         <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">
-          Desafio 500
+          Norte Financeiro
         </span>
       </div>
 

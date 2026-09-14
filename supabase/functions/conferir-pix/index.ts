@@ -44,7 +44,7 @@ function gerarChave(): string {
     corpo += ALFABETO[bytes[i]! % ALFABETO.length]
     if (i === 3 || i === 7) corpo += '-'
   }
-  return 'D500-' + corpo
+  return 'NF-' + corpo
 }
 
 Deno.serve(async (req: Request) => {

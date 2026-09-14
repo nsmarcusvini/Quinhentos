@@ -86,7 +86,7 @@ export function SyncProvider({ children }: { children: ReactNode }) {
       await enviar()
       setStatus('sincronizado')
     } catch (erro) {
-      console.warn('[Desafio 500] Falha ao sincronizar.', erro)
+      console.warn('[Norte Financeiro] Falha ao sincronizar.', erro)
       setStatus('erro')
     }
   }, [enviar, replaceState, usuario])
@@ -114,7 +114,7 @@ export function SyncProvider({ children }: { children: ReactNode }) {
       enviar()
         .then(() => setStatus('sincronizado'))
         .catch((erro) => {
-          console.warn('[Desafio 500] Falha ao enviar o progresso.', erro)
+          console.warn('[Norte Financeiro] Falha ao enviar o progresso.', erro)
           setStatus('erro')
         })
     }, ATRASO_ENVIO_MS)

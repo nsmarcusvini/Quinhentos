@@ -1,4 +1,4 @@
-# Desafio 500
+# Norte Financeiro
 
 PWA do desafio de poupança das 500 casinhas. São 500 números, de 1 a 500, e cada número é um
 valor em reais: você guarda a quantia de verdade e risca a casinha. Riscar todas significa ter
@@ -8,10 +8,11 @@ A ordem é livre: dá para marcar a 345 hoje e a 7 amanhã.
 
 Duas rotas:
 
-| Rota   | O que é                                                        |
-| ------ | -------------------------------------------------------------- |
-| `/`    | Landing gamificada, com hero jogável, calculadora de meta e FAQ |
-| `/app` | O desafio: grid das 500 casinhas, estatísticas e configurações  |
+| Rota     | O que é                                                         |
+| -------- | --------------------------------------------------------------- |
+| `/`      | Landing gamificada, com hero jogável, calculadora de meta e FAQ  |
+| `/app`   | O desafio: grid das 500 casinhas, estatísticas e configurações   |
+| `/admin` | Painel do dono: usuários, pagamentos e analytics do negócio      |
 
 Sem backend, sem cadastro, sem chamada de rede. Tudo vive no `localStorage` do aparelho.
 
@@ -93,7 +94,7 @@ service worker não registra em `http://` comum.
 
 ## Como o estado funciona
 
-Um único objeto versionado na chave `desafio500:state`:
+Um único objeto versionado na chave `norte:state`:
 
 ```ts
 {
@@ -174,6 +175,44 @@ src/
     landing/    /  — hero, calculadora, como funciona, grid em loop, marcos, FAQ, CTAs
 scripts/        geração dos ícones do PWA a partir de SVG (npm exec node scripts/generate-icons.mjs)
 ```
+
+## Painel de admin
+
+`/admin` mostra quem se cadastrou, quem pagou, por qual meio, e o analytics do negócio —
+aquisição, receita, funil de conversão, mix de pagamento, uso do produto, retenção por coorte e
+saúde da carteira. Tem exportação em CSV nas abas de usuários e pagamentos.
+
+**Como chegar lá.** Entre com a conta de administrador e abra `/app` →
+**Configurações** → **Abrir o painel**. O atalho só aparece para quem administra. Digitar `/admin`
+na barra de endereço dá no mesmo — o atalho é conveniência, não segurança.
+
+**Quem entra.** O portão é a Edge Function [`admin-dados`](supabase/functions/admin-dados/index.ts),
+não a tela: ela valida o JWT e compara o e-mail com a lista de administradores. A rota não está
+escondida, e não precisa estar — sem e-mail na lista a resposta é 403 e nenhum dado de cliente
+chega ao navegador.
+
+A lista vem do secret `ADMIN_EMAILS` (separado por vírgula) nas Edge Functions. Sem ele, vale o
+e-mail do dono que já está no código. O atalho nas Configurações tem a própria lista, em
+`VITE_ADMIN_EMAILS` — ela decide só o que a tela mostra, então mantenha as duas iguais para o
+botão não sumir para quem tem acesso, nem aparecer para quem vai levar 403.
+
+```bash
+npx supabase secrets set ADMIN_EMAILS=voce@exemplo.com --project-ref utjxgqwsrehqxwrvkqbb
+```
+
+**Por que uma função e não uma consulta direta.** A RLS de `licenses` não tem policy nenhuma e a de
+`challenges` só devolve a linha de quem está logado. Afrouxar isso para o painel ler tudo
+transformaria a anon key, que é pública, em chave de leitura da base de clientes. O service_role
+fica no servidor, e a função só lê.
+
+**Forma de pagamento.** A Stripe não diz no webhook como a compra foi paga — isso está na cobrança,
+não na sessão. A função descobre na primeira vez que o painel abre e grava em `licenses.payment_method`,
+fora do caminho crítico do pagamento. Compra pelo AbacatePay é sempre Pix; assinatura é sempre
+cartão, porque no modo recorrente a Stripe não oferece Pix.
+
+**O que o painel não sabe.** Visita na landing, demo jogada e clique no CTA acontecem antes de
+existir conta: esses eventos vão para o Plausible, e o painel linka para lá em vez de fingir que
+os tem. Configure `VITE_ANALYTICS_DOMAIN` para eles começarem a sair do navegador.
 
 ## Backup
 

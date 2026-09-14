@@ -3,6 +3,7 @@ import {
   HOUSE_COUNT,
   STATE_VERSION,
   STORAGE_KEY,
+  STORAGE_KEY_ANTIGA,
 } from '../lib/constants'
 import type { ChallengeState, Entries, ThemePreference } from './types'
 
@@ -74,15 +75,37 @@ export function migrate(raw: unknown): ChallengeState {
 }
 
 /** Lê o estado do localStorage. Nunca lança: JSON corrompido cai no estado inicial. */
+/**
+ * Move o progresso da chave antiga para a nova, uma vez.
+ *
+ * O app se chamava Desafio 500 e guardava em `desafio500:state`. Trocar a
+ * chave junto com o nome, sem mover o valor, apagaria o desafio de todo mundo
+ * que já usava — do ponto de vista da pessoa, o app teria zerado sozinho.
+ *
+ * Devolve o JSON bruto para o chamador seguir o caminho normal de validação.
+ */
+function migrarDaChaveAntiga(): string | null {
+  try {
+    const antigo = window.localStorage.getItem(STORAGE_KEY_ANTIGA)
+    if (!antigo) return null
+
+    window.localStorage.setItem(STORAGE_KEY, antigo)
+    window.localStorage.removeItem(STORAGE_KEY_ANTIGA)
+    return antigo
+  } catch {
+    return null
+  }
+}
+
 export function loadState(): ChallengeState {
   if (typeof window === 'undefined') return createInitialState()
 
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY)
+    const raw = window.localStorage.getItem(STORAGE_KEY) ?? migrarDaChaveAntiga()
     if (!raw) return createInitialState()
     return migrate(JSON.parse(raw))
   } catch (error) {
-    console.warn('[Desafio 500] Estado salvo inválido, recomeçando do zero.', error)
+    console.warn('[Norte Financeiro] Estado salvo inválido, recomeçando do zero.', error)
     return createInitialState()
   }
 }
@@ -94,7 +117,7 @@ export function saveState(state: ChallengeState): void {
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
   } catch (error) {
-    console.warn('[Desafio 500] Não foi possível salvar o progresso.', error)
+    console.warn('[Norte Financeiro] Não foi possível salvar o progresso.', error)
   }
 }
 
@@ -102,7 +125,7 @@ export function clearState(): void {
   try {
     window.localStorage.removeItem(STORAGE_KEY)
   } catch (error) {
-    console.warn('[Desafio 500] Não foi possível limpar o progresso.', error)
+    console.warn('[Norte Financeiro] Não foi possível limpar o progresso.', error)
   }
 }
 
@@ -110,7 +133,7 @@ export function clearState(): void {
 export function parseBackup(text: string): ChallengeState {
   const parsed: unknown = JSON.parse(text)
   if (!isRecord(parsed) || !isRecord(parsed.entries)) {
-    throw new Error('Arquivo fora do formato esperado do Desafio 500.')
+    throw new Error('Arquivo fora do formato esperado do Norte Financeiro.')
   }
   return migrate(parsed)
 }

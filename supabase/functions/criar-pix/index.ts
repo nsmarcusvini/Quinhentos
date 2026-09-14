@@ -61,7 +61,7 @@ Deno.serve(async (req: Request) => {
         data: {
           amount: valorCentavos,
           expiresIn: EXPIRA_EM_SEGUNDOS,
-          description: 'Desafio 500 — acesso vitalício',
+          description: 'Norte Financeiro — acesso vitalício',
         },
       }),
     })

@@ -10,7 +10,7 @@ export function OfflineReadyNotice() {
     const onReady = () =>
       showToast({
         title: 'Pronto para usar offline',
-        description: 'O Desafio 500 já funciona sem internet neste aparelho.',
+        description: 'O Norte Financeiro já funciona sem internet neste aparelho.',
         durationMs: 6000,
       })
 

@@ -13,13 +13,13 @@ export default function Termos() {
   return (
     <DocumentoLegal titulo="Termos de uso" atualizadoEm={ATUALIZADO_EM}>
       <p className="text-sm leading-relaxed text-muted">
-        Estes termos regem o uso do Desafio 500, oferecido por {RESPONSAVEL}, inscrito no{' '}
+        Estes termos regem o uso do Norte Financeiro, oferecido por {RESPONSAVEL}, inscrito no{' '}
         {DOCUMENTO}. Ao comprar ou usar o app, você concorda com o que está aqui.
       </p>
 
-      <Secao titulo="1. O que o Desafio 500 é — e o que não é">
+      <Secao titulo="1. O que o Norte Financeiro é — e o que não é">
         <p>
-          O Desafio 500 é um <strong className="text-ink">marcador de progresso</strong>: 500
+          O Norte Financeiro é um <strong className="text-ink">marcador de progresso</strong>: 500
           casinhas numeradas de 1 a 500 que você risca conforme guarda o dinheiro por conta
           própria. Riscar todas equivale a {formatCurrency(TOTAL_AMOUNT)}.
         </p>

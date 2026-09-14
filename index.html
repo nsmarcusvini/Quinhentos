@@ -8,15 +8,15 @@
     <meta name="theme-color" content="#0A0C10" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="Desafio 500" />
+    <meta name="apple-mobile-web-app-title" content="Norte Financeiro" />
 
-    <title>Desafio 500 — junte R$ 125.250 riscando um número por vez</title>
+    <title>Norte Financeiro — junte R$ 125.250 riscando um número por vez</title>
     <meta
       name="description"
       content="500 casinhas numeradas de 1 a 500. Guarde o valor, risque o número e junte R$ 125.250 no seu ritmo. Pagamento único de R$ 19,90, funciona offline, 7 dias de garantia."
     />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Desafio 500 — junte R$ 125.250" />
+    <meta property="og:title" content="Norte Financeiro — junte R$ 125.250" />
     <meta
       property="og:description"
       content="Risque um número por vez e veja o total subir. Pagamento único de R$ 19,90, sem mensalidade, com 7 dias de garantia."
@@ -29,7 +29,7 @@
       // Evita o flash de tema errado: aplica a classe antes do React montar.
       ;(function () {
         try {
-          var raw = localStorage.getItem('desafio500:state')
+          var raw = localStorage.getItem('norte:state')
           var theme = raw ? JSON.parse(raw).theme : 'system'
           var dark =
             theme === 'dark' ||

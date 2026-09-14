@@ -20,7 +20,7 @@ export function DocumentoLegal({ titulo, atualizadoEm, children }: DocumentoLega
           to="/"
           className="text-[11px] font-semibold uppercase tracking-wider text-muted transition-colors duration-150 hover:text-accent"
         >
-          ← Desafio 500
+          ← Norte Financeiro
         </Link>
 
         <h1 className="mt-5 text-3xl font-bold tracking-tight text-ink">{titulo}</h1>

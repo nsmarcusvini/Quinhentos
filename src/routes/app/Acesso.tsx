@@ -52,7 +52,7 @@ export default function Acesso() {
         return
       }
 
-      console.error('[Desafio 500] Falha ao resgatar a licença.', erro)
+      console.error('[Norte Financeiro] Falha ao resgatar a licença.', erro)
       setSituacao('erro')
     }
   }, [sessionId, recarregar])

@@ -40,7 +40,7 @@ export function PagarComPix({ onFechar }: PagarComPixProps) {
         setCobranca(criada)
         setFase('aguardando')
       } catch (erro) {
-        console.error('[Desafio 500] Falha ao criar a cobrança Pix.', erro)
+        console.error('[Norte Financeiro] Falha ao criar a cobrança Pix.', erro)
         setFase('erro')
       }
     })()
@@ -62,7 +62,7 @@ export function PagarComPix({ onFechar }: PagarComPixProps) {
       }
     } catch (erro) {
       // Falha de rede não cancela a espera: o Pix pode cair mesmo assim.
-      console.warn('[Desafio 500] Não consegui conferir o Pix agora.', erro)
+      console.warn('[Norte Financeiro] Não consegui conferir o Pix agora.', erro)
     }
   }, [cobranca, recarregar])
 

@@ -28,7 +28,7 @@ export function AppHeader({ challengeName, stats, onOpenPanel }: AppHeaderProps)
               to="/"
               className="text-[11px] font-semibold uppercase tracking-wider text-muted transition-colors duration-150 hover:text-accent"
             >
-              Desafio 500
+              Norte Financeiro
             </Link>
             <p className="truncate text-sm font-medium text-ink">{challengeName}</p>
           </div>

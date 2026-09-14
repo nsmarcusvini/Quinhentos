@@ -15,7 +15,12 @@ const CORS: Record<string, string> = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 }
 
-const FORMATO = /^D500-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/
+/**
+ * Chaves novas saem como NF-XXXX-XXXX-XXXX. As antigas, emitidas quando o
+ * produto se chamava Desafio 500, continuam valendo para sempre: quem pagou
+ * não pode perder o acesso porque o site trocou de nome.
+ */
+const FORMATO = /^(NF|D500)-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/
 
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
