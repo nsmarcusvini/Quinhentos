@@ -5,6 +5,7 @@ import { useCelebration } from '../../hooks/useCelebration'
 import { HOUSE_COUNT, HOUSE_NUMBERS } from '../../lib/constants'
 import { formatCurrency } from '../../lib/format'
 import { scrollBehavior } from '../../lib/motion'
+import { useAuth } from '../../state/AuthContext'
 import { useChallenge } from '../../state/ChallengeContext'
 import { useEntitlement } from '../../state/EntitlementContext'
 import { useStats } from '../../state/useStats'
@@ -24,6 +25,7 @@ export default function AppPage() {
   const showToast = useToast()
   const { requestUnmark, dialog: unmarkDialog } = useUnmarkFlow()
   const { status, revogada } = useEntitlement()
+  const { usuario, carregando: carregandoConta } = useAuth()
 
   useCelebration(stats)
 
@@ -106,7 +108,23 @@ export default function AppPage() {
 
   // Portão de acesso. Fica depois de todos os hooks para não quebrar a ordem
   // entre renders — por isso é um early return e não um wrapper.
-  if (status === 'bloqueado') {
+
+  // A licença fica no localStorage e é lida de forma síncrona; a sessão chega
+  // um tique depois. Sem esperar por ela, quem já está logado veria a tela de
+  // login piscar a cada abertura do app.
+  if (carregandoConta) {
+    return (
+      <div className="flex min-h-dvh items-center justify-center bg-bg">
+        <p className="text-sm text-muted">Carregando…</p>
+      </div>
+    )
+  }
+
+  // A conta É o acesso. Licença guardada neste aparelho não basta: antes,
+  // copiar a chave para outro navegador dava entrada sem conta nenhuma, e a
+  // pessoa ficava com um acesso que o servidor não sabia de quem era — sem
+  // sincronia, sem recuperação e fora do alcance de um reembolso.
+  if (!usuario || status === 'bloqueado') {
     return <Paywall stats={stats} revogada={revogada} />
   }
 

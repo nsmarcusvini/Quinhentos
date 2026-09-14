@@ -187,7 +187,7 @@ export default function Acesso() {
             <p className="mt-3 text-sm leading-relaxed text-muted">
               {sessionId
                 ? 'Se a cobrança apareceu no seu cartão, o acesso já está garantido — pode ser só uma demora do processamento. Tente de novo em alguns instantes.'
-                : 'Esta página só funciona vindo do checkout. Se você já comprou, use seu código de compra na tela do app.'}
+                : 'Esta página só funciona vindo do checkout. Se você já comprou, entre na sua conta que o acesso volta sozinho.'}
             </p>
 
             <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-center">

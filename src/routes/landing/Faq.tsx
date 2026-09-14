@@ -50,7 +50,7 @@ const QUESTIONS: readonly { id: string; question: string; answer: string }[] = [
     id: 'dados',
     question: 'Onde ficam meus dados?',
     answer:
-      'Por padrão, as casinhas ficam só no armazenamento local do seu navegador — não sobem para servidor nenhum. Se você criar a conta opcional, aí sim o desafio passa a ser copiado para a nuvem, porque é isso que permite recuperá-lo em outro aparelho. Você escolhe: sem conta, nada sai daqui.',
+      'As casinhas ficam no armazenamento local do seu navegador e o app funciona offline a partir dali. Uma cópia sobe para a sua conta, porque é isso que devolve o desafio quando você troca de aparelho ou limpa o navegador. Guardamos e-mail, senha e as casinhas marcadas — nada de dados bancários: quem processa o pagamento é a Stripe ou o AbacatePay, e o cartão nunca passa por nós.',
   },
   {
     id: 'offline',

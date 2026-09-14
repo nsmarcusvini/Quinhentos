@@ -27,6 +27,12 @@ const LICENSE_PATTERN = /^D500-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/
 export interface License {
   key: string
   unlockedAt: number
+  /**
+   * Dono da licença. Sem isto o cache do localStorage valia para qualquer
+   * conta: bastava colar uma chave válida no navegador, criar uma conta
+   * gratuita e entrar — o portão de sessão não adiantava nada.
+   */
+  userId?: string
 }
 
 export type EntitlementStatus = 'liberado' | 'bloqueado'
@@ -41,11 +47,11 @@ function readLicense(): License | null {
     const parsed: unknown = JSON.parse(raw)
     if (typeof parsed !== 'object' || parsed === null) return null
 
-    const { key, unlockedAt } = parsed as Partial<License>
+    const { key, unlockedAt, userId } = parsed as Partial<License>
     if (typeof key !== 'string' || !LICENSE_PATTERN.test(key)) return null
     if (typeof unlockedAt !== 'number' || !Number.isFinite(unlockedAt)) return null
 
-    return { key, unlockedAt }
+    return { key, unlockedAt, userId: typeof userId === 'string' ? userId : undefined }
   } catch {
     return null
   }
@@ -113,7 +119,7 @@ export function EntitlementProvider({ children }: { children: ReactNode }) {
     if (!resultado.valida) return resultado
 
     setRevogada(false)
-    const next: License = { key, unlockedAt: Date.now() }
+    const next: License = { key, unlockedAt: Date.now(), userId: usuario?.id }
     try {
       window.localStorage.setItem(LICENSE_KEY, JSON.stringify(next))
     } catch {
@@ -121,7 +127,7 @@ export function EntitlementProvider({ children }: { children: ReactNode }) {
     }
     setLicense(next)
     return resultado
-  }, [])
+  }, [usuario?.id])
 
   const lock = useCallback(() => {
     try {
@@ -174,16 +180,27 @@ export function EntitlementProvider({ children }: { children: ReactNode }) {
   const recarregar = useCallback(async () => {
     if (!usuario) return
 
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('licenses')
       .select('key, revoked_at')
       .eq('user_id', usuario.id)
       .is('revoked_at', null)
       .maybeSingle()
 
-    if (!data?.key) return
+    // Erro aqui é rede, não veredito: mantém o que já estava liberado. O app
+    // promete funcionar offline, e trancar alguém por causa de um túnel seria
+    // pior do que confiar no cache por mais um tempo.
+    if (error) return
 
-    const proxima: License = { key: data.key, unlockedAt: Date.now() }
+    // O servidor respondeu e esta conta não tem licença. Isso é autoritativo:
+    // a RLS devolve a linha de quem está logado, então "nada" significa nada
+    // mesmo — inclusive quando o localStorage insiste no contrário.
+    if (!data?.key) {
+      lock()
+      return
+    }
+
+    const proxima: License = { key: data.key, unlockedAt: Date.now(), userId: usuario.id }
     try {
       window.localStorage.setItem(LICENSE_KEY, JSON.stringify(proxima))
     } catch {
@@ -191,22 +208,26 @@ export function EntitlementProvider({ children }: { children: ReactNode }) {
     }
     setLicense(proxima)
     setRevogada(false)
-  }, [usuario])
+  }, [usuario, lock])
 
   useEffect(() => {
     void recarregar()
   }, [recarregar])
 
+  // Uma licença com dono declarado só vale para esse dono. A sem dono é cache
+  // de versão antiga: vale até o recarregar() confirmar ou derrubar.
+  const daConta = license !== null && (license.userId === undefined || license.userId === usuario?.id)
+
   const valor = useMemo<Entitlement>(
     () => ({
-      status: license ? 'liberado' : 'bloqueado',
+      status: daConta ? 'liberado' : 'bloqueado',
       license,
       unlock,
       lock,
       revogada,
       recarregar,
     }),
-    [license, unlock, lock, revogada, recarregar],
+    [license, daConta, unlock, lock, revogada, recarregar],
   )
 
   return <EntitlementContext.Provider value={valor}>{children}</EntitlementContext.Provider>

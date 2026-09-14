@@ -201,7 +201,7 @@ export function SettingsPanel() {
         <div className="border-t border-line pt-5">
           <Field
             label="Seu código de compra"
-            hint="Destrava o app em outro aparelho, sem precisar de conta. Guarde junto com o backup."
+            hint="Identifica sua compra no suporte. Para entrar em outro aparelho, use sua conta."
           >
             <div className="flex gap-2">
               <p className="flex h-11 flex-1 select-all items-center rounded-xl border border-line bg-surface-2 px-3 font-mono text-sm text-ink">
