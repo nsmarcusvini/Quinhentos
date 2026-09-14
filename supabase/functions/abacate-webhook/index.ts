@@ -59,8 +59,20 @@ Deno.serve(async (req: Request) => {
     return new Response('configuracao_incompleta', { status: 500 })
   }
 
-  const recebido = new URL(req.url).searchParams.get('webhookSecret') ?? ''
-  if (!iguais(recebido, segredo)) {
+  // A documentação mostra o segredo na query string, mas também menciona um
+  // header de assinatura. Como não deu para confirmar qual chega de fato,
+  // aceito as duas formas — errar aqui derrubaria a camada de durabilidade em
+  // silêncio, e só descobriríamos por um cliente sem acesso.
+  const url = new URL(req.url)
+  const candidatos = [
+    url.searchParams.get('webhookSecret'),
+    url.searchParams.get('webhook_secret'),
+    req.headers.get('x-webhook-secret'),
+    req.headers.get('x-abacatepay-secret'),
+  ]
+
+  if (!candidatos.some((valor) => typeof valor === 'string' && iguais(valor, segredo))) {
+    console.warn('Webhook recusado: segredo ausente ou incorreto.')
     return new Response('segredo_invalido', { status: 401 })
   }
 
