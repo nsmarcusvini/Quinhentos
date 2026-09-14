@@ -14,6 +14,16 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 
 const BASE = 'https://api.abacatepay.com/v2'
+/**
+ * O /transparents/check devolve apenas { id, status, expiresAt } — sem o
+ * valor. Então o valor gravado vem do nosso próprio preço, que é a fonte
+ * autoritativa de quanto foi cobrado, e não do gateway nem do cliente.
+ */
+const precoCentavos = (): number | null => {
+  const bruto = Number(Deno.env.get('PRECO_CENTAVOS') ?? '1990')
+  return Number.isInteger(bruto) && bruto > 0 ? bruto : null
+}
+
 const ALFABETO = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
 
 function gerarChave(): string {
@@ -91,7 +101,6 @@ Deno.serve(async (req: Request) => {
 
   // Confirma na API em vez de acreditar no corpo recebido.
   let status = ''
-  let valor: number | null = null
   try {
     const resposta = await fetch(
       BASE + '/transparents/check?id=' + encodeURIComponent(cobrancaId),
@@ -99,7 +108,6 @@ Deno.serve(async (req: Request) => {
     )
     const corpo = await resposta.json()
     status = String(corpo?.data?.status ?? '')
-    valor = typeof corpo?.data?.amount === 'number' ? corpo.data.amount : null
   } catch (erro) {
     console.error('Falha ao confirmar no AbacatePay:', erro instanceof Error ? erro.message : erro)
     return new Response('gateway_indisponivel', { status: 500 })
@@ -114,7 +122,7 @@ Deno.serve(async (req: Request) => {
     key: gerarChave(),
     provider: 'abacatepay',
     external_id: cobrancaId,
-    amount_total: valor,
+    amount_total: precoCentavos(),
     currency: 'brl',
   })
 
