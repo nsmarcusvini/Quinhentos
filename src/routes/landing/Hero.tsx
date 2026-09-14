@@ -13,16 +13,22 @@ import { MiniGrid } from './MiniGrid'
 const MARKS_BEFORE_NUDGE = 3
 
 export function Hero({ stats }: { stats: ChallengeStats }) {
-  const { entries, mark } = useChallenge()
+  const { entries, mark, unmark } = useChallenge()
   const showToast = useToast()
   const marksInSession = useRef(0)
   const nudged = useRef(false)
 
   const animatedTotal = useCountUp(stats.saved, 500)
 
-  const handleMark = useCallback(
+  const handleToggle = useCallback(
     (houseNumber: number) => {
-      if (entries[houseNumber] !== undefined) return
+      // Desmarcar é direto aqui, sem a confirmação que o app pede: a demo é um
+      // brinquedo, nada está em risco, e um diálogo no meio de uma página de
+      // vendas custa mais do que o clique errado que ele evitaria.
+      if (entries[houseNumber] !== undefined) {
+        unmark(houseNumber)
+        return
+      }
 
       mark(houseNumber)
       marksInSession.current += 1
@@ -39,7 +45,7 @@ export function Hero({ stats }: { stats: ChallengeStats }) {
         })
       }
     },
-    [entries, mark, showToast, stats.markedCount, stats.saved],
+    [entries, mark, unmark, showToast, stats.markedCount, stats.saved],
   )
 
   return (
@@ -91,12 +97,13 @@ export function Hero({ stats }: { stats: ChallengeStats }) {
           </div>
 
           <div className="mt-4">
-            <MiniGrid entries={entries} onMark={handleMark} />
+            <MiniGrid entries={entries} onToggle={handleToggle} />
           </div>
 
           <p className="mt-3 text-xs leading-relaxed text-muted">
-            Uma amostra de 50 das {HOUSE_COUNT} casinhas, funcionando de verdade. O que você
-            riscar aqui fica salvo e entra no seu desafio quando você destravar.
+            Uma amostra de 50 das {HOUSE_COUNT} casinhas, funcionando de verdade. Clicou sem
+            querer? Clique de novo para desmarcar. O que você riscar aqui fica salvo e entra no
+            seu desafio quando você destravar.
           </p>
         </div>
 

@@ -24,7 +24,7 @@ const MiniHouse = memo(function MiniHouse({ number, marked, onActivate }: MiniHo
     <button
       type="button"
       aria-pressed={marked}
-      aria-label={marked ? `Guardado: ${value}` : `Guardar ${value}`}
+      aria-label={marked ? `Desmarcar ${value}` : `Guardar ${value}`}
       onClick={() => onActivate(number)}
       className={cn(
         'relative flex aspect-square min-h-[44px] items-center justify-center rounded-lg border',
@@ -45,15 +45,16 @@ const MiniHouse = memo(function MiniHouse({ number, marked, onActivate }: MiniHo
 
 interface MiniGridProps {
   entries: Record<number, number>
-  onMark: (houseNumber: number) => void
+  /** Marca a casinha, ou desmarca se já estiver marcada. */
+  onToggle: (houseNumber: number) => void
 }
 
-export function MiniGrid({ entries, onMark }: MiniGridProps) {
+export function MiniGrid({ entries, onToggle }: MiniGridProps) {
   const handleActivate = useCallback(
     (houseNumber: number) => {
-      onMark(houseNumber)
+      onToggle(houseNumber)
     },
-    [onMark],
+    [onToggle],
   )
 
   return (
