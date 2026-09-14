@@ -3,7 +3,7 @@ import { ChevronDownIcon } from '../../components/ui/icons'
 import { trackEvent } from '../../lib/analytics'
 import { HOUSE_COUNT, TOTAL_AMOUNT } from '../../lib/constants'
 import { formatCurrency, formatCurrencyCompact } from '../../lib/format'
-import { GUARANTEE_DAYS, PRICE_BRL, SUPPORT_EMAIL } from '../../lib/pricing'
+import { GUARANTEE_DAYS, PRICE_BRL } from '../../lib/pricing'
 
 const QUESTIONS: readonly { id: string; question: string; answer: string }[] = [
   {
@@ -11,6 +11,11 @@ const QUESTIONS: readonly { id: string; question: string; answer: string }[] = [
     question: `${formatCurrency(PRICE_BRL)} é uma vez só mesmo? Não vem cobrança depois?`,
     answer:
       'Uma vez só. Não existe plano mensal, renovação automática, versão premium ou upsell depois. Você paga, recebe o acesso e ele é seu — inclusive se trocar de celular. Se algum dia aparecer uma cobrança recorrente com esse nome no seu cartão, não fui eu.',
+  },
+  {
+    id: 'garantia',
+    question: 'E se eu não gostar?',
+    answer: `Você tem ${GUARANTEE_DAYS} dias para pedir o dinheiro de volta, sem precisar justificar e sem formulário de retenção. Um e-mail resolve. Prefiro devolver ${formatCurrency(PRICE_BRL)} a ter alguém carregando um app que não usa.`,
   },
   {
     id: 'por-que-pago',
@@ -46,11 +51,6 @@ const QUESTIONS: readonly { id: string; question: string; answer: string }[] = [
     question: 'Funciona offline?',
     answer:
       'Sim. Depois de desbloqueado, o app fica instalado no aparelho e abre sem internet — no ônibus, no avião, no elevador. Marcar casinhas funciona normalmente offline e tudo fica salvo localmente.',
-  },
-  {
-    id: 'reembolso',
-    question: 'E se eu não gostar?',
-    answer: `Você tem ${GUARANTEE_DAYS} dias corridos, contados da compra, para pedir o reembolso integral — é o direito de arrependimento do art. 49 do Código de Defesa do Consumidor. Escreva para ${SUPPORT_EMAIL} informando o e-mail usado na compra e o valor volta pelo mesmo meio de pagamento.`,
   },
   {
     id: 'matematica',

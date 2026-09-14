@@ -18,12 +18,6 @@ export const GUARANTEE_DAYS = 7
 export const CHECKOUT_HREF = '/app'
 
 /**
- * Contato de suporte e reembolso.
- * TROCAR antes de publicar — o texto do FAQ e das Configurações usa este valor.
- */
-export const SUPPORT_EMAIL = 'suporte@seudominio.com.br'
-
-/**
  * Âncora de preço usada na copy. Assinaturas de apps de finanças no Brasil
  * ficam nessa faixa por MÊS — é a comparação que torna R$ 19,90 barato.
  */

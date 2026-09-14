@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { ArrowRightIcon } from '../../components/ui/icons'
 import { cn } from '../../lib/cn'
 import { formatCurrency } from '../../lib/format'
-import { CHECKOUT_HREF, PRICE_BRL } from '../../lib/pricing'
+import { CHECKOUT_HREF, GUARANTEE_DAYS, PRICE_BRL } from '../../lib/pricing'
 import { trackEvent } from '../../lib/analytics'
 
 interface CtaButtonProps {
@@ -49,7 +49,7 @@ export function CtaButton({
 
       {reassurance && (
         <p className={cn('mt-2 text-xs text-muted', fullWidth && 'text-center')}>
-          Pagamento único · acesso vitalício · sem renovação
+          Pagamento único · acesso vitalício · {GUARANTEE_DAYS} dias de garantia
         </p>
       )}
     </div>

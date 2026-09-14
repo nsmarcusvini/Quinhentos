@@ -3,6 +3,7 @@ import { Button } from '../../components/ui/Button'
 import { useInstallPrompt } from '../../hooks/useInstallPrompt'
 import { HOUSE_COUNT, TOTAL_AMOUNT } from '../../lib/constants'
 import { formatCurrencyCompact } from '../../lib/format'
+import { GUARANTEE_DAYS } from '../../lib/pricing'
 import type { ChallengeStats } from '../../state/useStats'
 import { CtaButton } from './CtaButton'
 
@@ -25,8 +26,8 @@ export function FinalCta({ stats }: { stats: ChallengeStats }) {
         </h2>
 
         <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-muted sm:text-base">
-          {HOUSE_COUNT} casinhas, {formatCurrencyCompact(TOTAL_AMOUNT)} no fim da linha e uma
-          casinha por vez para chegar lá.
+          {HOUSE_COUNT} casinhas, {formatCurrencyCompact(TOTAL_AMOUNT)} no fim da linha e{' '}
+          {GUARANTEE_DAYS} dias para desistir sem perder nada.
         </p>
 
         <div className="mt-7 flex justify-center">
