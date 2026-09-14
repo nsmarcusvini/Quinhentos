@@ -187,17 +187,26 @@ saúde da carteira. Tem exportação em CSV nas abas de usuários e pagamentos.
 na barra de endereço dá no mesmo — o atalho é conveniência, não segurança.
 
 **Quem entra.** O portão é a Edge Function [`admin-dados`](supabase/functions/admin-dados/index.ts),
-não a tela: ela valida o JWT e compara o e-mail com a lista de administradores. A rota não está
-escondida, e não precisa estar — sem e-mail na lista a resposta é 403 e nenhum dado de cliente
-chega ao navegador.
+não a tela: ela valida o JWT e compara o **ID do usuário** com a lista de administradores. A
+rota não está escondida, e não precisa estar — sem ID na lista a resposta é 403 e nenhum dado
+de cliente chega ao navegador.
 
-A lista vem do secret `ADMIN_EMAILS` (separado por vírgula) nas Edge Functions. Sem ele, vale o
-e-mail do dono que já está no código. O atalho nas Configurações tem a própria lista, em
-`VITE_ADMIN_EMAILS` — ela decide só o que a tela mostra, então mantenha as duas iguais para o
-botão não sumir para quem tem acesso, nem aparecer para quem vai levar 403.
+**Por que ID e não e-mail.** E-mail é auto-declarável: com a confirmação desligada no Supabase,
+quem se cadastra com um endereço ganha sessão sem provar que o endereço é dele. Enquanto a
+lista fosse de e-mails, bastava um endereço administrativo ainda não cadastrado para alguém
+reivindicá-lo e sair com a base inteira de clientes — inclusive as chaves de licença, que
+`vincular-licenca` resgata em acesso pago. E o endereço nem era segredo: o bundle do front é
+público. O UUID vem do banco; ninguém se cadastra escolhendo o seu.
+
+A lista vem do secret `ADMIN_USER_IDS` (separado por vírgula) nas Edge Functions. Sem ele,
+vale o ID do dono que já está no código. O atalho nas Configurações tem a própria lista, em
+`VITE_ADMIN_USER_IDS` — ela decide só o que a tela mostra, então mantenha as duas iguais para
+o botão não sumir para quem tem acesso, nem aparecer para quem vai levar 403.
+
+O ID sai de `select id from auth.users where email = 'voce@exemplo.com'`.
 
 ```bash
-npx supabase secrets set ADMIN_EMAILS=voce@exemplo.com --project-ref utjxgqwsrehqxwrvkqbb
+npx supabase secrets set ADMIN_USER_IDS=<uuid> --project-ref utjxgqwsrehqxwrvkqbb
 ```
 
 **Por que uma função e não uma consulta direta.** A RLS de `licenses` não tem policy nenhuma e a de

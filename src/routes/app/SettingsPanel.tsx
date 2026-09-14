@@ -246,7 +246,7 @@ export function SettingsPanel() {
 
       {/* O atalho só aparece para quem administra, mas quem barra o resto é o
           servidor: /admin responde 403 para qualquer outra conta. */}
-      {ehAdmin(usuario?.email) && (
+      {ehAdmin(usuario?.id) && (
         <div className="border-t border-line pt-5">
           <Field label="Painel do dono" hint="Usuários, pagamentos e analytics do negócio.">
             <Link

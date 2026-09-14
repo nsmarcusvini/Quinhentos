@@ -15,6 +15,9 @@ import { useThemeEffect } from './state/useTheme'
 // nem mostrar "Carregando…" no primeiro contato. O app fica lazy.
 const AppPage = lazy(() => import('./routes/app/AppPage'))
 const Acesso = lazy(() => import('./routes/app/Acesso'))
+// Painel de admin: uma pessoa usa, e o portão de verdade é a Edge Function.
+// Fica lazy para não pesar o bundle de quem só quer o desafio.
+const AdminPage = lazy(() => import('./routes/admin/AdminPage'))
 const Termos = lazy(() => import('./routes/legal/Termos'))
 const Privacidade = lazy(() => import('./routes/legal/Privacidade'))
 
@@ -46,6 +49,7 @@ function AppRoutes() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/app" element={<AppPage />} />
           <Route path="/acesso" element={<Acesso />} />
+          <Route path="/admin" element={<AdminPage />} />
           <Route path="/termos" element={<Termos />} />
           <Route path="/privacidade" element={<Privacidade />} />
           <Route path="*" element={<Navigate to="/" replace />} />

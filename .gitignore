@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Estado do CLI do Supabase, nao e codigo
+supabase/.temp/
