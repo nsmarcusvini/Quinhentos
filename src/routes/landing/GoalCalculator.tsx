@@ -1,5 +1,6 @@
 import { useId, useMemo, useState, type CSSProperties } from 'react'
 import { useCountUp } from '../../hooks/useCountUp'
+import { trackOnce } from '../../lib/analytics'
 import { addDays, formatLongDate } from '../../lib/date'
 import { formatCurrency, formatCurrencyCompact, formatInteger } from '../../lib/format'
 import type { ChallengeStats } from '../../state/useStats'
@@ -65,7 +66,10 @@ export function GoalCalculator({ stats }: { stats: ChallengeStats }) {
             max={MAX_PER_WEEK}
             step={STEP}
             value={perWeek}
-            onChange={(event) => setPerWeek(Number(event.target.value))}
+            onChange={(event) => {
+              setPerWeek(Number(event.target.value))
+              trackOnce('calc_interact')
+            }}
             aria-valuetext={`${formatCurrency(perWeek)} por semana`}
             className="mt-4 h-11 w-full cursor-pointer appearance-none bg-transparent"
             style={{ '--progress': `${progressPercent}%` } as CSSProperties}

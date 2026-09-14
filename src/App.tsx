@@ -4,11 +4,12 @@ import { ConfettiProvider } from './components/Confetti'
 import { OfflineReadyNotice } from './components/OfflineReadyNotice'
 import { ToastProvider } from './components/ui/Toast'
 import { useRouteEffects } from './hooks/useRouteEffects'
+import LandingPage from './routes/landing/LandingPage'
 import { ChallengeProvider } from './state/ChallengeContext'
 import { useThemeEffect } from './state/useTheme'
 
-// Cada rota carrega só o próprio código; o service worker guarda os dois chunks.
-const LandingPage = lazy(() => import('./routes/landing/LandingPage'))
+// A landing é página de vendas: entra no bundle inicial para não gastar LCP
+// nem mostrar "Carregando…" no primeiro contato. O app fica lazy.
 const AppPage = lazy(() => import('./routes/app/AppPage'))
 
 function RouteFallback() {

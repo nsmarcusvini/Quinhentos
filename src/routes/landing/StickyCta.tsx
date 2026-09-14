@@ -26,7 +26,7 @@ export function StickyCta({ stats }: { stats: ChallengeStats }) {
           transition={{ duration: 0.2, ease: 'easeOut' }}
           className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-bg/95 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-md sm:hidden"
         >
-          <CtaButton saved={stats.saved} size="md" fullWidth />
+          <CtaButton position="sticky" saved={stats.saved} size="md" fullWidth />
         </motion.div>
       )}
     </AnimatePresence>

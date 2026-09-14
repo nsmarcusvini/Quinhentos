@@ -6,8 +6,10 @@ import { HOUSE_COUNT, HOUSE_NUMBERS } from '../../lib/constants'
 import { formatCurrency } from '../../lib/format'
 import { scrollBehavior } from '../../lib/motion'
 import { useChallenge } from '../../state/ChallengeContext'
+import { useEntitlement } from '../../state/useEntitlement'
 import { useStats } from '../../state/useStats'
 import { AppHeader } from './AppHeader'
+import { Paywall } from './Paywall'
 import { AppPanels } from './AppPanels'
 import { MilestoneStrip } from './MilestoneStrip'
 import { Toolbar, type HouseFilter } from './Toolbar'
@@ -21,6 +23,7 @@ export default function AppPage() {
   const stats = useStats()
   const showToast = useToast()
   const { requestUnmark, dialog: unmarkDialog } = useUnmarkFlow()
+  const { status, unlock } = useEntitlement()
 
   useCelebration(stats)
 
@@ -100,6 +103,12 @@ export default function AppPage() {
     activateRef.current = activate
   })
   const handleActivate = useCallback((houseNumber: number) => activateRef.current(houseNumber), [])
+
+  // Portão de acesso. Fica depois de todos os hooks para não quebrar a ordem
+  // entre renders — por isso é um early return e não um wrapper.
+  if (status === 'bloqueado') {
+    return <Paywall stats={stats} onUnlock={unlock} />
+  }
 
   return (
     <div className="min-h-dvh bg-bg">
