@@ -4,7 +4,7 @@ import { CheckIcon, WifiOffIcon } from '../../components/ui/icons'
 import { trackOnce } from '../../lib/analytics'
 import { HOUSE_COUNT, TOTAL_AMOUNT } from '../../lib/constants'
 import { formatCurrency, formatCurrencyCompact } from '../../lib/format'
-import { GUARANTEE_DAYS, MONTHLY_ANCHOR_BRL, PRICE_BRL } from '../../lib/pricing'
+import { MONTHLY_ANCHOR_BRL, PRICE_BRL } from '../../lib/pricing'
 import type { ChallengeStats } from '../../state/useStats'
 import { CtaButton } from './CtaButton'
 
@@ -56,8 +56,8 @@ export function PriceBlock({ stats }: { stats: ChallengeStats }) {
 
             <div className="mt-6 flex flex-col gap-2 text-left sm:mx-auto sm:max-w-sm">
               {[
-                `${GUARANTEE_DAYS} dias de garantia — não gostou, devolvo o valor`,
                 'Sem mensalidade, sem renovação automática',
+                'Acesso vitalício — paga uma vez e é seu',
                 'Sem anúncio e sem conexão com o seu banco',
                 'Funciona offline depois de instalado',
               ].map((item) => (
@@ -102,12 +102,6 @@ export function PriceBlock({ stats }: { stats: ChallengeStats }) {
                 <strong className="font-semibold text-ink">A demo é o app de verdade.</strong> O
                 grid lá em cima não é vídeo nem imagem: é o produto rodando, e o que você riscou
                 continua salvo.
-              </li>
-              <li>
-                <strong className="font-semibold text-ink">
-                  {GUARANTEE_DAYS} dias de garantia.
-                </strong>{' '}
-                Se não for para você, peça o dinheiro de volta. O risco é meu, não seu.
               </li>
             </ul>
           </div>

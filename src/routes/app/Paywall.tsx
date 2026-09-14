@@ -5,7 +5,7 @@ import { ArrowRightIcon, CheckIcon } from '../../components/ui/icons'
 import { trackEvent } from '../../lib/analytics'
 import { cn } from '../../lib/cn'
 import { formatCurrency, formatCurrencyCompact } from '../../lib/format'
-import { GUARANTEE_DAYS, PRICE_BRL } from '../../lib/pricing'
+import { PRICE_BRL } from '../../lib/pricing'
 import { HOUSE_COUNT, TOTAL_AMOUNT } from '../../lib/constants'
 import type { ChallengeStats } from '../../state/useStats'
 
@@ -73,8 +73,8 @@ export function Paywall({ stats, onUnlock }: PaywallProps) {
 
           <div className="mt-4 space-y-1.5">
             {[
-              `${GUARANTEE_DAYS} dias de garantia`,
               'Sem mensalidade e sem renovação',
+              'Acesso vitalício neste e em outros aparelhos',
               'Funciona offline depois de instalado',
             ].map((item) => (
               <p key={item} className="flex items-center gap-2 text-sm text-muted">

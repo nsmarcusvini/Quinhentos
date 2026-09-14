@@ -4,7 +4,7 @@ import { useCountUp } from '../../hooks/useCountUp'
 import { trackEvent } from '../../lib/analytics'
 import { HOUSE_COUNT, TOTAL_AMOUNT } from '../../lib/constants'
 import { formatCurrency, formatCurrencyCompact, pluralize } from '../../lib/format'
-import { GUARANTEE_DAYS, PRICE_BRL } from '../../lib/pricing'
+import { PRICE_BRL } from '../../lib/pricing'
 import { useChallenge } from '../../state/ChallengeContext'
 import type { ChallengeStats } from '../../state/useStats'
 import { CtaButton } from './CtaButton'
@@ -51,7 +51,7 @@ export function Hero({ stats }: { stats: ChallengeStats }) {
 
       <div className="relative mx-auto w-full max-w-3xl">
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-accent">
-          Desafio 500 · pagamento único · {GUARANTEE_DAYS} dias de garantia
+          Desafio 500 · pagamento único · sem mensalidade
         </p>
 
         {/* Dor primeiro. O mecanismo vem no parágrafo seguinte. */}

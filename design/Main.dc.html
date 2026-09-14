@@ -1,0 +1,493 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Public+Sans:wght@400;500;600&display=swap">
+  <style>
+    body { margin: 0; background: #0A0C10; font-family: 'Public Sans', system-ui, 'Segoe UI', sans-serif; -webkit-font-smoothing: antialiased; }
+    a { color: #4ADE80; text-decoration: none; }
+    a:hover { color: #86EFAC; }
+    .disp { font-family: 'Bricolage Grotesque', system-ui, 'Segoe UI', sans-serif; letter-spacing: -0.035em; line-height: 1.02; font-weight: 800; }
+    .num { font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+    .eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; }
+  </style>
+</helmet>
+
+<div style="width: 390px; background: #0A0C10; color: #E8ECF3; overflow: hidden">
+
+  <!-- 01 · HERO ─ energia alta, denso ─────────────────────────────── -->
+  <div style="position: relative; padding: 28px 20px 36px">
+    <div style="position: absolute; top: -180px; left: 50%; transform: translateX(-50%); width: 520px; height: 380px; border-radius: 9999px; background: #22C55E; opacity: 0.10; filter: blur(90px); pointer-events: none"></div>
+
+    <div style="position: relative; display: flex; flex-direction: column; gap: 18px">
+      <div style="display: flex; align-items: center; gap: 8px">
+        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2px; width: 20px">
+          <div style="aspect-ratio: 1; border-radius: 2px; background: #22C55E"></div>
+          <div style="aspect-ratio: 1; border-radius: 2px; background: #22C55E; opacity: 0.4"></div>
+          <div style="aspect-ratio: 1; border-radius: 2px; background: #22C55E"></div>
+          <div style="aspect-ratio: 1; border-radius: 2px; background: #22C55E; opacity: 0.4"></div>
+          <div style="aspect-ratio: 1; border-radius: 2px; background: #22C55E"></div>
+          <div style="aspect-ratio: 1; border-radius: 2px; background: #22C55E; opacity: 0.4"></div>
+          <div style="aspect-ratio: 1; border-radius: 2px; background: #22C55E"></div>
+          <div style="aspect-ratio: 1; border-radius: 2px; background: #22C55E; opacity: 0.4"></div>
+          <div style="aspect-ratio: 1; border-radius: 2px; background: #22C55E"></div>
+        </div>
+        <span class="eyebrow" style="color: #96A2B6">Desafio 500</span>
+      </div>
+
+      <h1 class="disp" style="margin: 0; font-size: 40px; color: #E8ECF3">
+        Guardar dinheiro não falha por disciplina.
+        <span style="display: block; color: #4ADE80">Falha por falta de placar.</span>
+      </h1>
+
+      <p style="margin: 0; font-size: 15px; line-height: 1.6; color: #96A2B6">
+        500 casinhas numeradas de 1 a 500. Você guarda o valor de verdade, risca o número e vê o total subir até <span class="num" style="color: #E8ECF3; font-weight: 600">R$ 125.250</span>.
+      </p>
+
+      <div style="display: flex; flex-direction: column; gap: 10px">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 56px; border-radius: 18px; background: #22C55E; color: #06210F; font-size: 16px; font-weight: 600; box-shadow: 0 10px 34px -12px rgba(34,197,94,0.65)">
+          Quero meu acesso — R$ 19,90
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16M14 6l6 6-6 6"/></svg>
+        </div>
+        <p style="margin: 0; text-align: center; font-size: 12px; color: #96A2B6">
+          Pagamento único · acesso vitalício · 7 dias de garantia
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MINI-GRID ─ o herói visual, full-bleed e com moldura própria ─── -->
+  <div style="padding: 0 20px 40px">
+    <div style="border-radius: 24px; border: 1px solid #282F3C; background: #12151C; overflow: hidden">
+      <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; padding: 18px 18px 14px; border-bottom: 1px solid #282F3C">
+        <div>
+          <p class="eyebrow" style="margin: 0 0 6px; color: #4ADE80">Experimente antes de pagar</p>
+          <p class="num disp" style="margin: 0; font-size: 34px; color: #E8ECF3">{{vals.totalFmt}}</p>
+        </div>
+        <p class="num" style="margin: 0 0 4px; font-size: 12px; color: #96A2B6">{{vals.countFmt}}</p>
+      </div>
+
+      <div style="padding: 14px">
+        <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px">
+          <sc-for list="{{vals.houses}}" as="h" hint-placeholder-count="50">
+            <div onClick="{{h.toggle}}" style="{{h.style}}">
+              <span class="num">{{h.n}}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <p style="margin: 0; padding: 0 18px 18px; font-size: 12px; line-height: 1.55; color: #96A2B6">
+        Uma amostra de 50 das 500 casinhas, funcionando de verdade. O que você riscar aqui fica salvo.
+      </p>
+    </div>
+  </div>
+
+  <!-- 02 · PROBLEMA ─ respiro, baixa densidade ────────────────────── -->
+  <div style="padding: 44px 20px; background: #0C0F14; border-top: 1px solid #1A1F29; border-bottom: 1px solid #1A1F29">
+    <div style="display: flex; flex-direction: column; gap: 22px">
+      <div style="display: flex; flex-direction: column; gap: 12px">
+        <div style="display: flex; align-items: center; gap: 10px">
+          <div class="num" style="display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 8px; background: #1A1F29; border: 1px solid #282F3C; font-size: 11px; font-weight: 600; color: #96A2B6">02</div>
+          <span class="eyebrow" style="color: #96A2B6">O problema</span>
+        </div>
+        <h2 class="disp" style="margin: 0; font-size: 30px; color: #E8ECF3">Você já tentou.<br>Não foi culpa sua.</h2>
+        <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #96A2B6">
+          Quase todo mundo já abriu uma poupança com a melhor das intenções e parou no segundo mês. Três coisas costumam estar por trás — e nenhuma delas é força de vontade.
+        </p>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 10px">
+        <div style="border-radius: 18px; border: 1px solid #282F3C; background: #12151C; padding: 18px">
+          <h3 class="disp" style="margin: 0 0 8px; font-size: 18px; font-weight: 700; color: #E8ECF3">O dinheiro guardado é invisível</h3>
+          <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #96A2B6">No app do banco, R$ 300 separados viram mais um número no meio de outros vinte. O que não dá sensação de progresso ninguém repete.</p>
+        </div>
+        <div style="border-radius: 18px; border: 1px solid #282F3C; background: #12151C; padding: 18px">
+          <h3 class="disp" style="margin: 0 0 8px; font-size: 18px; font-weight: 700; color: #E8ECF3">Não existe linha de chegada</h3>
+          <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #96A2B6">"Guardar dinheiro" é tarefa sem fim. Sem um fim visível, todo mês é um mês razoável para pular.</p>
+        </div>
+        <div style="border-radius: 18px; border: 1px solid #282F3C; background: #12151C; padding: 18px">
+          <h3 class="disp" style="margin: 0 0 8px; font-size: 18px; font-weight: 700; color: #E8ECF3">Um mês ruim vira desistência</h3>
+          <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #96A2B6">Meta mensal fixa pune quem falha uma vez. Você fura, sente que está devendo, e abandona.</p>
+        </div>
+      </div>
+
+      <div style="border-radius: 18px; border: 1px solid rgba(34,197,94,0.30); background: rgba(34,197,94,0.06); padding: 18px">
+        <p style="margin: 0; font-size: 14px; line-height: 1.65; color: #E8ECF3">
+          O Desafio 500 ataca os três: cada casinha riscada é <strong style="font-weight: 600">visível</strong>, a linha de chegada tem <strong style="font-weight: 600">500 passos contados</strong>, e pular uma semana <strong style="font-weight: 600">não quebra nada</strong>.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 03 · COMO FUNCIONA ─ ritmo horizontal, numerado ──────────────── -->
+  <div style="padding: 44px 20px">
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px">
+      <div class="num" style="display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 8px; background: #1A1F29; border: 1px solid #282F3C; font-size: 11px; font-weight: 600; color: #96A2B6">03</div>
+      <span class="eyebrow" style="color: #96A2B6">Como funciona</span>
+    </div>
+    <h2 class="disp" style="margin: 0 0 24px; font-size: 30px; color: #E8ECF3">Três passos. Nada além.</h2>
+
+    <div style="display: flex; flex-direction: column; gap: 0">
+      <div style="display: flex; gap: 14px; padding-bottom: 22px; border-left: 2px solid #282F3C; margin-left: 19px; padding-left: 24px; position: relative">
+        <div style="position: absolute; left: -21px; top: 0; width: 40px; height: 40px; border-radius: 12px; background: #12151C; border: 1px solid #282F3C; display: flex; align-items: center; justify-content: center; color: #4ADE80">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8.5" cy="8.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="15.5" cy="15.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/></svg>
+        </div>
+        <div style="padding-top: 2px">
+          <h3 class="disp" style="margin: 0 0 6px; font-size: 19px; font-weight: 700; color: #E8ECF3">Escolha um número</h3>
+          <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #96A2B6">Qualquer casinha de 1 a 500, na ordem que quiser. Sem ideia? O sorteio escolhe uma pendente.</p>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 14px; padding-bottom: 22px; border-left: 2px solid #282F3C; margin-left: 19px; padding-left: 24px; position: relative">
+        <div style="position: absolute; left: -21px; top: 0; width: 40px; height: 40px; border-radius: 12px; background: #12151C; border: 1px solid #282F3C; display: flex; align-items: center; justify-content: center; color: #4ADE80">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/></svg>
+        </div>
+        <div style="padding-top: 2px">
+          <h3 class="disp" style="margin: 0 0 6px; font-size: 19px; font-weight: 700; color: #E8ECF3">Guarde o valor de verdade</h3>
+          <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #96A2B6">Na poupança, no cofrinho ou numa conta à parte. O app não mexe no seu dinheiro — ele marca o placar.</p>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 14px; margin-left: 19px; padding-left: 24px; position: relative">
+        <div style="position: absolute; left: -21px; top: 0; width: 40px; height: 40px; border-radius: 12px; background: #15803D; border: 1px solid #15803D; display: flex; align-items: center; justify-content: center; color: #F0FDF4">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7"/></svg>
+        </div>
+        <div style="padding-top: 2px">
+          <h3 class="disp" style="margin: 0 0 6px; font-size: 19px; font-weight: 700; color: #E8ECF3">Risque a casinha</h3>
+          <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #96A2B6">O total sobe na hora. O progresso fica salvo no aparelho, mesmo sem internet.</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: 28px; display: flex; flex-direction: column; gap: 8px; align-items: center">
+      <div style="display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 52px; border-radius: 18px; background: #22C55E; color: #06210F; font-size: 15px; font-weight: 600">
+        Quero meu acesso — R$ 19,90
+      </div>
+      <p style="margin: 0; font-size: 11px; color: #96A2B6">Pagamento único · 7 dias de garantia</p>
+    </div>
+  </div>
+
+  <!-- 04 · CALCULADORA ─ painel interativo ─────────────────────────── -->
+  <div style="padding: 44px 20px; background: #0C0F14; border-top: 1px solid #1A1F29; border-bottom: 1px solid #1A1F29">
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px">
+      <div class="num" style="display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 8px; background: #1A1F29; border: 1px solid #282F3C; font-size: 11px; font-weight: 600; color: #96A2B6">04</div>
+      <span class="eyebrow" style="color: #96A2B6">Sua meta</span>
+    </div>
+    <h2 class="disp" style="margin: 0 0 20px; font-size: 30px; color: #E8ECF3">Quanto tempo isso leva pra você?</h2>
+
+    <div style="border-radius: 24px; border: 1px solid #282F3C; background: #12151C; padding: 20px">
+      <p style="margin: 0 0 4px; font-size: 13px; font-weight: 500; color: #E8ECF3">Quanto você guarda por semana?</p>
+      <p class="num disp" style="margin: 0 0 14px; font-size: 36px; color: #4ADE80">{{vals.perWeekFmt}}</p>
+
+      <input type="range" min="50" max="1500" step="10" value="{{vals.perWeek}}" onInput="{{vals.setWeek}}" style="width: 100%; height: 32px; accent-color: #22C55E; background: transparent; cursor: pointer">
+
+      <div style="display: flex; justify-content: space-between; font-size: 11px; color: #96A2B6; margin-bottom: 18px">
+        <span class="num">R$ 50</span><span class="num">R$ 1.500</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding-top: 18px; border-top: 1px solid #282F3C">
+        <div>
+          <p class="eyebrow" style="margin: 0 0 6px; color: #96A2B6">Tempo até concluir</p>
+          <p class="disp" style="margin: 0; font-size: 20px; font-weight: 700; color: #E8ECF3">{{vals.duration}}</p>
+        </div>
+        <div>
+          <p class="eyebrow" style="margin: 0 0 6px; color: #96A2B6">Data estimada</p>
+          <p class="disp" style="margin: 0; font-size: 20px; font-weight: 700; color: #E8ECF3">{{vals.finishDate}}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 05 · MARCOS ─ trilho vertical, leitura longa ─────────────────── -->
+  <div style="padding: 44px 20px">
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px">
+      <div class="num" style="display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 8px; background: #1A1F29; border: 1px solid #282F3C; font-size: 11px; font-weight: 600; color: #96A2B6">05</div>
+      <span class="eyebrow" style="color: #96A2B6">O caminho</span>
+    </div>
+    <h2 class="disp" style="margin: 0 0 6px; font-size: 30px; color: #E8ECF3">Cada marco é um pedaço de vida</h2>
+    <p style="margin: 0 0 24px; font-size: 14px; line-height: 1.6; color: #96A2B6">Não é só um número maior.</p>
+
+    <div style="display: flex; flex-direction: column">
+      <sc-for list="{{vals.milestones}}" as="m" hint-placeholder-count="7">
+        <div style="display: flex; gap: 14px; position: relative; padding-bottom: 14px">
+          <div style="display: flex; flex-direction: column; align-items: center; flex-shrink: 0">
+            <div style="width: 12px; height: 12px; border-radius: 4px; background: #22C55E; opacity: {{m.dot}}; margin-top: 18px"></div>
+            <div style="width: 2px; flex-grow: 1; background: #282F3C; margin-top: 6px"></div>
+          </div>
+          <div style="flex-grow: 1; border-radius: 18px; border: 1px solid #282F3C; background: #12151C; padding: 16px">
+            <p class="num disp" style="margin: 0 0 4px; font-size: 22px; color: #E8ECF3">{{m.amount}}</p>
+            <p style="margin: 0 0 8px; font-size: 12px; font-weight: 600; color: #4ADE80">{{m.title}}</p>
+            <p style="margin: 0; font-size: 13px; line-height: 1.55; color: #96A2B6">{{m.anchor}}</p>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- 06 · GRID EM LOOP ─ pico visual, quase sem texto ─────────────── -->
+  <div style="padding: 44px 20px; background: #0C0F14; border-top: 1px solid #1A1F29; border-bottom: 1px solid #1A1F29">
+    <h2 class="disp" style="margin: 0 0 6px; font-size: 26px; color: #E8ECF3">É isso que terminar parece</h2>
+    <p style="margin: 0 0 18px; font-size: 13px; color: #96A2B6">500 casinhas. Uma de cada vez.</p>
+
+    <div style="border-radius: 24px; border: 1px solid #282F3C; background: #12151C; padding: 18px">
+      <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px">
+        <span class="num disp" style="font-size: 26px; color: #4ADE80">R$ 92.480</span>
+        <span class="num" style="font-size: 12px; color: #96A2B6">de R$ 125.250</span>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(25, minmax(0, 1fr)); gap: 2px">
+        <sc-for list="{{vals.loop}}" as="c" hint-placeholder-count="500">
+          <div style="aspect-ratio: 1; border-radius: 1px; background: {{c.color}}"></div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <!-- 07 · O QUE VOCÊ LEVA ─ lista densa ───────────────────────────── -->
+  <div style="padding: 44px 20px">
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px">
+      <div class="num" style="display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 8px; background: #1A1F29; border: 1px solid #282F3C; font-size: 11px; font-weight: 600; color: #96A2B6">07</div>
+      <span class="eyebrow" style="color: #96A2B6">O pacote</span>
+    </div>
+    <h2 class="disp" style="margin: 0 0 6px; font-size: 30px; color: #E8ECF3">O que entra por R$ 19,90</h2>
+    <p style="margin: 0 0 20px; font-size: 14px; color: #96A2B6">Uma vez. Para sempre.</p>
+
+    <div style="display: flex; flex-direction: column; gap: 2px">
+      <sc-for list="{{vals.features}}" as="f" hint-placeholder-count="8">
+        <div style="display: flex; gap: 12px; padding: 14px 0; border-bottom: 1px solid #1A1F29">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4ADE80" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px"><path d="m5 12.5 4.5 4.5L19 7"/></svg>
+          <div>
+            <p style="margin: 0 0 3px; font-size: 14px; font-weight: 600; color: #E8ECF3">{{f.title}}</p>
+            <p style="margin: 0; font-size: 13px; line-height: 1.55; color: #96A2B6">{{f.text}}</p>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- 08 · PREÇO ─ o pico da página ────────────────────────────────── -->
+  <div style="padding: 16px 20px 44px">
+    <div style="border-radius: 24px; border: 1px solid rgba(34,197,94,0.35); background: linear-gradient(180deg, rgba(34,197,94,0.14) 0%, rgba(34,197,94,0.02) 55%, rgba(34,197,94,0) 100%); padding: 28px 20px; text-align: center">
+      <p class="eyebrow" style="margin: 0 0 16px; color: #4ADE80">Acesso completo</p>
+
+      <div style="display: flex; align-items: flex-start; justify-content: center; gap: 3px">
+        <span class="disp" style="font-size: 22px; color: #96A2B6; margin-top: 10px">R$</span>
+        <span class="num disp" style="font-size: 68px; color: #E8ECF3; line-height: 0.9">19</span>
+        <span class="num disp" style="font-size: 26px; color: #E8ECF3; margin-top: 6px">,90</span>
+      </div>
+
+      <p style="margin: 14px 0 0; font-size: 14px; font-weight: 600; color: #E8ECF3">Pagamento único · acesso vitalício</p>
+
+      <p style="margin: 12px auto 0; max-width: 280px; font-size: 13px; line-height: 1.6; color: #96A2B6">
+        Apps de controle financeiro cobram de R$ 13 a R$ 15 <strong style="color: #E8ECF3; font-weight: 600">por mês</strong>. Mais de R$ 178 em um ano. Aqui você paga uma vez e acabou.
+      </p>
+
+      <div style="display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 56px; margin-top: 22px; border-radius: 18px; background: #22C55E; color: #06210F; font-size: 16px; font-weight: 600; box-shadow: 0 10px 34px -12px rgba(34,197,94,0.65)">
+        Quero meu acesso — R$ 19,90
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16M14 6l6 6-6 6"/></svg>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 9px; margin-top: 20px; text-align: left">
+        <sc-for list="{{vals.guarantees}}" as="g" hint-placeholder-count="4">
+          <div style="display: flex; align-items: flex-start; gap: 9px">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4ADE80" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px"><path d="m5 12.5 4.5 4.5L19 7"/></svg>
+            <span style="font-size: 13px; line-height: 1.45; color: #96A2B6">{{g.text}}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <!-- transparência no lugar de prova social -->
+    <div style="margin-top: 12px; border-radius: 24px; border: 1px solid #282F3C; background: #12151C; padding: 20px">
+      <h3 class="disp" style="margin: 0 0 12px; font-size: 17px; font-weight: 700; color: #E8ECF3">Por que confiar numa página recém-nascida</h3>
+      <p style="margin: 0 0 12px; font-size: 13px; line-height: 1.65; color: #96A2B6">
+        Este produto acabou de sair. Não tenho depoimento de cliente e não vou inventar nenhum — a mentira seria óbvia: juntar R$ 125.250 leva anos, então ninguém terminou este desafio ainda.
+      </p>
+      <div style="display: flex; flex-direction: column; gap: 10px">
+        <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #96A2B6"><strong style="color: #E8ECF3; font-weight: 600">A conta é conferível.</strong> 500 × 501 ÷ 2 = 125.250. Exatamente o que a página promete.</p>
+        <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #96A2B6"><strong style="color: #E8ECF3; font-weight: 600">A demo é o app de verdade.</strong> O grid lá em cima não é vídeo: é o produto rodando.</p>
+        <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #96A2B6"><strong style="color: #E8ECF3; font-weight: 600">7 dias de garantia.</strong> Se não for para você, o risco é meu.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 09 · FAQ ─ quieto ────────────────────────────────────────────── -->
+  <div style="padding: 44px 20px; background: #0C0F14; border-top: 1px solid #1A1F29; border-bottom: 1px solid #1A1F29">
+    <h2 class="disp" style="margin: 0 0 20px; font-size: 30px; color: #E8ECF3">Perguntas honestas</h2>
+
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <sc-for list="{{vals.faq}}" as="q" hint-placeholder-count="5">
+        <div onClick="{{q.toggle}}" style="{{q.boxStyle}}">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 52px">
+            <span style="font-size: 13.5px; font-weight: 600; line-height: 1.4; color: #E8ECF3">{{q.question}}</span>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#96A2B6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="{{q.iconStyle}}"><path d="m6 9 6 6 6-6"/></svg>
+          </div>
+          <sc-if value="{{q.open}}" hint-placeholder-val="{{true}}">
+            <p style="margin: 0 0 4px; font-size: 13px; line-height: 1.65; color: #96A2B6">{{q.answer}}</p>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- 10 · FECHAMENTO ──────────────────────────────────────────────── -->
+  <div style="padding: 48px 20px 44px; text-align: center; position: relative; overflow: hidden">
+    <div style="position: absolute; bottom: -160px; left: 50%; transform: translateX(-50%); width: 460px; height: 320px; border-radius: 9999px; background: #22C55E; opacity: 0.10; filter: blur(80px); pointer-events: none"></div>
+
+    <div style="position: relative">
+      <h2 class="disp" style="margin: 0 0 12px; font-size: 32px; color: #E8ECF3">A casinha 1 custa R$ 1.<br>O resto vem sozinho.</h2>
+      <p style="margin: 0 0 24px; font-size: 14px; line-height: 1.6; color: #96A2B6">500 casinhas, R$ 125.250 no fim da linha e 7 dias para desistir sem perder nada.</p>
+
+      <div style="display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 56px; border-radius: 18px; background: #22C55E; color: #06210F; font-size: 16px; font-weight: 600; box-shadow: 0 10px 34px -12px rgba(34,197,94,0.65)">
+        Quero meu acesso — R$ 19,90
+      </div>
+      <p style="margin: 10px 0 0; font-size: 12px; color: #96A2B6">Pagamento único · acesso vitalício · 7 dias de garantia</p>
+
+      <div style="margin-top: 28px; border-radius: 18px; border: 1px solid #282F3C; background: #12151C; padding: 16px; text-align: left">
+        <p style="margin: 0 0 8px; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: #E8ECF3">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#4ADE80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 2l20 20M8.5 16.5a5 5 0 0 1 7 0M5 12.5a10 10 0 0 1 4-2.4M2 8.8A15 15 0 0 1 7 6M22 8.8a15 15 0 0 0-9.7-2.7M19 12.5a10 10 0 0 0-2.3-1.6"/><circle cx="12" cy="20" r="1" fill="#4ADE80" stroke="none"/></svg>
+          Depois da compra, instale e use offline
+        </p>
+        <p style="margin: 0; font-size: 12.5px; line-height: 1.6; color: #96A2B6">No Chrome: menu ⋮ → "Instalar app". Ele abre como aplicativo, direto da tela inicial, sem precisar de internet.</p>
+      </div>
+    </div>
+  </div>
+
+  <div style="padding: 22px 20px 28px; border-top: 1px solid #1A1F29; text-align: center">
+    <p style="margin: 0; font-size: 11.5px; line-height: 1.6; color: #96A2B6">Desafio 500 — pagamento único, sem mensalidade.<br>O progresso fica salvo no seu aparelho.</p>
+  </div>
+
+</div>
+</x-dc>
+
+<script data-dc-script data-props='{"$preview":{"width":390,"height":6600}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props)
+    this.state = { marked: { 55: true, 95: true, 245: true, 345: true }, perWeek: 200, openFaq: 0 }
+  }
+
+  brl(v, cents) {
+    return v.toLocaleString('pt-BR', {
+      style: 'currency', currency: 'BRL',
+      minimumFractionDigits: cents ? 2 : 0, maximumFractionDigits: cents ? 2 : 0
+    })
+  }
+
+  renderVals() {
+    const TOTAL = 125250
+    const marked = this.state.marked
+
+    // amostra de 50 casinhas: 5, 15, 25 ... 495
+    const houses = []
+    let saved = 0
+    for (let i = 0; i < 50; i++) {
+      const n = i * 10 + 5
+      const on = !!marked[n]
+      if (on) saved += n
+      houses.push({
+        n: n,
+        toggle: () => {
+          const next = Object.assign({}, this.state.marked)
+          if (next[n]) delete next[n]; else next[n] = true
+          this.setState({ marked: next })
+        },
+        style: on
+          ? 'display:flex;align-items:center;justify-content:center;aspect-ratio:1;border-radius:10px;border:1px solid transparent;background:#15803D;color:#F0FDF4;font-size:12px;font-weight:600;text-decoration:line-through;text-decoration-thickness:1px;text-decoration-color:rgba(240,253,244,0.7);cursor:pointer;transition:all 160ms'
+          : 'display:flex;align-items:center;justify-content:center;aspect-ratio:1;border-radius:10px;border:1px solid #282F3C;background:#1A1F29;color:#E8ECF3;font-size:12px;font-weight:600;cursor:pointer;transition:all 160ms'
+      })
+    }
+
+    // calculadora
+    const perWeek = this.state.perWeek
+    const weeks = Math.max(1, Math.ceil((TOTAL - saved) / perWeek))
+    const months = Math.round(weeks / (52 / 12))
+    let duration
+    if (weeks < 9) duration = weeks + ' semanas'
+    else if (months < 12) duration = months + ' meses'
+    else {
+      const y = Math.floor(months / 12), r = months % 12
+      duration = (y === 1 ? '1 ano' : y + ' anos') + (r ? ' e ' + (r === 1 ? '1 mês' : r + ' meses') : '')
+    }
+    const finish = new Date()
+    finish.setDate(finish.getDate() + weeks * 7)
+
+    // grid em loop, congelado em ~74%
+    const loop = []
+    for (let i = 0; i < 500; i++) {
+      loop.push({ color: ((i * 37) % 100) < 74 ? '#22C55E' : '#1A1F29' })
+    }
+
+    const milestones = [
+      { amount: 'R$ 1.000', title: 'O primeiro fôlego', anchor: 'Dá pra resolver o pneu furado ou a ida ao pronto-socorro sem recorrer ao cartão.', dot: '1' },
+      { amount: 'R$ 5.000', title: 'Um mês tranquilo', anchor: 'Um mês inteiro de aluguel, mercado e contas pagos sem depender de ninguém.', dot: '0.85' },
+      { amount: 'R$ 10.000', title: 'Reserva de verdade', anchor: 'Cerca de três meses de despesas para quem gasta R$ 3.300 por mês.', dot: '0.7' },
+      { amount: 'R$ 25.000', title: 'A entrada do carro', anchor: 'Entrada de um seminovo — ou aquele curso técnico que você adia há anos.', dot: '0.55' },
+      { amount: 'R$ 50.000', title: 'A obra que faltava', anchor: 'Reforma completa da cozinha e do banheiro, à vista, sem financiamento.', dot: '0.4' },
+      { amount: 'R$ 100.000', title: 'A entrada do apartamento', anchor: 'Entrada de um imóvel de R$ 500 mil — a conversa com o banco muda de tom.', dot: '0.25' },
+      { amount: 'R$ 125.250', title: 'Desafio completo', anchor: 'As 500 casinhas riscadas. O valor que você juntou R$ 1 por vez.', dot: '1' }
+    ]
+
+    const features = [
+      { title: 'As 500 casinhas, com progresso salvo', text: 'Marque na ordem que quiser. Total, percentual e o que falta sempre no topo.' },
+      { title: 'Estatísticas do seu ritmo', text: 'Média semanal, projeção de conclusão e gráfico do acumulado ao longo do tempo.' },
+      { title: 'Histórico com data e hora', text: 'Cada lançamento registrado, com desfazer por item.' },
+      { title: 'Sorteio, filtro e busca', text: 'O sorteio escolhe uma pendente. Filtre por guardadas ou vá direto a um número.' },
+      { title: 'Marcos e comemoração', text: 'Confete a cada 10%, marcos ancorados em coisas reais e contador de dias seguidos.' },
+      { title: 'Instala no celular e funciona offline', text: 'Vira ícone na tela inicial e abre sem internet.' },
+      { title: 'Backup que é seu de verdade', text: 'Exporte um JSON quando quiser e importe em outro aparelho.' },
+      { title: 'Pagamento único', text: 'Sem mensalidade, sem renovação, sem upsell.' }
+    ]
+
+    const guarantees = [
+      { text: '7 dias de garantia — não gostou, devolvo o valor' },
+      { text: 'Sem mensalidade, sem renovação automática' },
+      { text: 'Sem anúncio e sem conexão com o seu banco' },
+      { text: 'Funciona offline depois de instalado' }
+    ]
+
+    const faqSource = [
+      { question: 'R$ 19,90 é uma vez só mesmo?', answer: 'Uma vez só. Não existe plano mensal, renovação automática nem upsell depois. Você paga, recebe o acesso e ele é seu.' },
+      { question: 'E se eu não gostar?', answer: 'Você tem 7 dias para pedir o dinheiro de volta, sem justificar e sem formulário de retenção. Um e-mail resolve.' },
+      { question: 'Por que não é de graça?', answer: 'Porque as alternativas são piores: anúncio no seu progresso, venda dos seus dados ou conexão com o seu banco. Não faço nenhuma das três.' },
+      { question: 'E se eu pular uma semana?', answer: 'Nada acontece. Não existe prazo nem sequência quebrada. O app continua exatamente onde você parou.' },
+      { question: 'Onde ficam meus dados?', answer: 'No armazenamento local do seu navegador. Nem eu consigo ver quanto você guardou.' }
+    ]
+
+    const faq = faqSource.map((q, i) => ({
+      question: q.question,
+      answer: q.answer,
+      open: this.state.openFaq === i,
+      toggle: () => this.setState({ openFaq: this.state.openFaq === i ? -1 : i }),
+      boxStyle: 'border-radius:18px;border:1px solid ' + (this.state.openFaq === i ? 'rgba(34,197,94,0.4)' : '#282F3C') +
+        ';background:#12151C;padding:4px 16px 12px;cursor:pointer;transition:border-color 160ms',
+      iconStyle: 'flex-shrink:0;transition:transform 200ms;transform:rotate(' + (this.state.openFaq === i ? '180' : '0') + 'deg)'
+    }))
+
+    return {
+      vals: {
+        houses: houses,
+        totalFmt: this.brl(saved, true),
+        countFmt: Object.keys(marked).length + ' de 500 riscadas',
+        perWeek: perWeek,
+        perWeekFmt: this.brl(perWeek, true),
+        setWeek: (e) => this.setState({ perWeek: Number(e.target.value) }),
+        duration: duration,
+        finishDate: finish.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }),
+        loop: loop,
+        milestones: milestones,
+        features: features,
+        guarantees: guarantees,
+        faq: faq
+      }
+    }
+  }
+}
+</script>
+</body>
+</html>

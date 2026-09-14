@@ -13,6 +13,7 @@ import {
 import { cn } from '../../lib/cn'
 import { backupFilename, downloadJson } from '../../lib/download'
 import { formatInteger, pluralize } from '../../lib/format'
+import { GUARANTEE_DAYS, SUPPORT_EMAIL } from '../../lib/pricing'
 import { useChallenge } from '../../state/ChallengeContext'
 import { parseBackup } from '../../state/storage'
 import type { ChallengeState, ThemePreference } from '../../state/types'
@@ -191,6 +192,24 @@ export function SettingsPanel() {
             Zerar o desafio
           </Button>
         </Field>
+      </div>
+
+      {/* Compra e reembolso: presente e encontrável, sem chamar atenção.
+          Os 7 dias são o direito de arrependimento do art. 49 do CDC, não uma
+          cortesia — por isso a informação existe no app em vez de só no site. */}
+      <div className="border-t border-line pt-5">
+        <p className="text-xs uppercase tracking-wider text-muted">Sua compra</p>
+        <p className="mt-2 text-xs leading-relaxed text-muted">
+          Acesso vitalício, pagamento único, sem renovação. Dúvidas, problema com a chave de
+          acesso ou pedido de reembolso nos primeiros {GUARANTEE_DAYS} dias:{' '}
+          <a
+            href={`mailto:${SUPPORT_EMAIL}`}
+            className="text-muted underline underline-offset-2 transition-colors duration-150 hover:text-ink"
+          >
+            {SUPPORT_EMAIL}
+          </a>
+          .
+        </p>
       </div>
 
       {/* --- diálogos ------------------------------------------------------ */}
