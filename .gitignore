@@ -25,3 +25,8 @@ dist-ssr
 
 # Estado do CLI do Supabase, nao e codigo
 supabase/.temp/
+
+# Variaveis locais. O .env.example versionado diz quais existem.
+.env
+.env.*
+!.env.example

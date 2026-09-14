@@ -1,8 +1,37 @@
 import react from '@vitejs/plugin-react'
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
-export default defineConfig({
+/**
+ * Sem estas duas o app não conecta em nada.
+ *
+ * `createClient(undefined, undefined)` estoura no carregamento, então um build
+ * sem elas publica uma tela branca — e o deploy passa verde, porque compilar
+ * funcionou. Falhar aqui troca uma queda silenciosa em produção por um erro de
+ * build, que é onde dá para consertar antes de alguém ver.
+ *
+ * Só no build: em `dev` o aviso atrapalharia quem clonou e ainda não copiou o
+ * `.env.example`.
+ */
+const OBRIGATORIAS = ['VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON_KEY']
+
+function exigirVariaveis(mode: string): void {
+  if (mode !== 'production') return
+
+  const env = loadEnv(mode, process.cwd(), 'VITE_')
+  const faltando = OBRIGATORIAS.filter((nome) => !env[nome]?.trim())
+  if (faltando.length === 0) return
+
+  throw new Error(
+    `Build abortado: faltam ${faltando.join(' e ')}.\n` +
+      'Copie .env.example para .env, ou defina as variáveis no painel do seu host.',
+  )
+}
+
+export default defineConfig(({ mode }) => {
+  exigirVariaveis(mode)
+
+  return {
   plugins: [
     react(),
     VitePWA({
@@ -50,4 +79,5 @@ export default defineConfig({
       },
     }),
   ],
+  }
 })
