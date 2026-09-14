@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react'
+import { validarLicencaNoServidor } from '../lib/api'
 
 /**
  * Licença de acesso vitalício.
@@ -49,13 +50,20 @@ export const isWellFormedKey = (raw: string): boolean =>
 /**
  * Valida a chave contra o servidor.
  *
- * FASE 4: substituir o corpo por uma chamada à Edge Function do Supabase
- * (projeto utjxgqwsrehqxwrvkqbb), que consulta a tabela `licenses`. Hoje só
- * confere o formato — não há pagamento ativo, então não existe nada a proteger
- * ainda, e isso deixa o fluxo inteiro testável de ponta a ponta desde já.
+ * O formato é só um pré-filtro barato para não gastar uma chamada de rede com
+ * texto claramente inválido. Quem decide é a Edge Function `validar-licenca`,
+ * que consulta a tabela `licenses` — sem isso qualquer um inventaria uma chave
+ * no formato certo e entraria sem pagar.
  */
 export async function validateLicense(raw: string): Promise<boolean> {
-  return Promise.resolve(isWellFormedKey(raw))
+  if (!isWellFormedKey(raw)) return false
+
+  try {
+    return await validarLicencaNoServidor(normalizeLicenseKey(raw))
+  } catch (erro) {
+    console.warn('[Desafio 500] Não foi possível validar a licença agora.', erro)
+    return false
+  }
 }
 
 interface Entitlement {

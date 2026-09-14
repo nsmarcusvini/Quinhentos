@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { Button } from '../../components/ui/Button'
 import { ArrowRightIcon, CheckIcon } from '../../components/ui/icons'
 import { trackEvent } from '../../lib/analytics'
+import { criarCheckout } from '../../lib/api'
 import { cn } from '../../lib/cn'
 import { formatCurrency, formatCurrencyCompact } from '../../lib/format'
 import { GUARANTEE_DAYS, PRICE_BRL } from '../../lib/pricing'
@@ -22,6 +23,21 @@ export function Paywall({ stats, onUnlock }: PaywallProps) {
   const [value, setValue] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [checking, setChecking] = useState(false)
+  const [abrindoCheckout, setAbrindoCheckout] = useState(false)
+  const [erroCheckout, setErroCheckout] = useState<string | null>(null)
+
+  const comprar = async () => {
+    setAbrindoCheckout(true)
+    setErroCheckout(null)
+    trackEvent('checkout_start', { price: PRICE_BRL })
+    try {
+      window.location.href = await criarCheckout()
+    } catch (erro) {
+      console.error('[Desafio 500] Falha ao abrir o checkout.', erro)
+      setErroCheckout('Não consegui abrir o pagamento agora. Tente de novo em instantes.')
+      setAbrindoCheckout(false)
+    }
+  }
 
   const submit = async (rawKey: string) => {
     setChecking(true)
@@ -84,23 +100,25 @@ export function Paywall({ stats, onUnlock }: PaywallProps) {
             ))}
           </div>
 
-          {/* FASE 4: este botão passa a abrir o Stripe Checkout. */}
           <button
             type="button"
-            disabled
-            onClick={() => trackEvent('checkout_start', { price: PRICE_BRL })}
+            disabled={abrindoCheckout}
+            onClick={() => void comprar()}
             className={cn(
               'mt-5 inline-flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl',
               'bg-brand-500 font-semibold text-[#06210F] shadow-glow',
+              'transition-[background-color,transform] duration-150 hover:bg-brand-400 active:scale-[0.98]',
               'disabled:cursor-not-allowed disabled:opacity-60',
             )}
           >
-            Comprar acesso — {formatCurrency(PRICE_BRL)}
-            <ArrowRightIcon width={18} height={18} />
+            {abrindoCheckout ? 'Abrindo pagamento…' : `Comprar acesso — ${formatCurrency(PRICE_BRL)}`}
+            {!abrindoCheckout && <ArrowRightIcon width={18} height={18} />}
           </button>
-          <p className="mt-2 text-center text-xs text-muted">
-            Checkout ainda não conectado — entra na próxima etapa.
-          </p>
+          {erroCheckout && (
+            <p role="alert" className="mt-2 text-center text-xs text-danger">
+              {erroCheckout}
+            </p>
+          )}
         </div>
 
         <div className="mt-6">

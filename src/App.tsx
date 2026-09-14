@@ -11,6 +11,7 @@ import { useThemeEffect } from './state/useTheme'
 // A landing é página de vendas: entra no bundle inicial para não gastar LCP
 // nem mostrar "Carregando…" no primeiro contato. O app fica lazy.
 const AppPage = lazy(() => import('./routes/app/AppPage'))
+const Acesso = lazy(() => import('./routes/app/Acesso'))
 
 function RouteFallback() {
   return (
@@ -39,6 +40,7 @@ function AppRoutes() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/app" element={<AppPage />} />
+          <Route path="/acesso" element={<Acesso />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>
