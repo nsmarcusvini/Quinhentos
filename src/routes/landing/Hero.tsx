@@ -43,7 +43,7 @@ export function Hero({ stats }: { stats: ChallengeStats }) {
   )
 
   return (
-    <section className="relative overflow-hidden px-4 pb-12 pt-[max(1.75rem,env(safe-area-inset-top))]">
+    <section className="relative overflow-hidden px-4 pb-12 pt-7">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute left-1/2 top-0 h-[420px] w-[680px] -translate-x-1/2 -translate-y-1/3 rounded-full bg-brand-500/10 blur-3xl"
@@ -51,7 +51,7 @@ export function Hero({ stats }: { stats: ChallengeStats }) {
 
       <div className="relative mx-auto w-full max-w-3xl">
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-accent">
-          Desafio 500 · pagamento único · {GUARANTEE_DAYS} dias de garantia
+          Pagamento único · {GUARANTEE_DAYS} dias de garantia
         </p>
 
         {/* Dor primeiro. O mecanismo vem no parágrafo seguinte. */}

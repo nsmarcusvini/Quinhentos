@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { trackOnce } from '../../lib/analytics'
 import { useStats } from '../../state/useStats'
 import type { ChallengeStats } from '../../state/useStats'
+import { BarraTopo } from './BarraTopo'
 import { CtaButton } from './CtaButton'
 import { Faq } from './Faq'
 import { FinalCta } from './FinalCta'
@@ -34,6 +35,8 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-dvh bg-bg pb-20 sm:pb-0">
+      <BarraTopo />
+
       <main id="conteudo">
         {/* dor → mecanismo → payoff → oferta → objeção → fechamento */}
         <Hero stats={stats} />

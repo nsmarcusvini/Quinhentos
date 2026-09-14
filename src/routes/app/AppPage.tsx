@@ -23,7 +23,7 @@ export default function AppPage() {
   const stats = useStats()
   const showToast = useToast()
   const { requestUnmark, dialog: unmarkDialog } = useUnmarkFlow()
-  const { status, unlock, revogada } = useEntitlement()
+  const { status, revogada } = useEntitlement()
 
   useCelebration(stats)
 
@@ -107,7 +107,7 @@ export default function AppPage() {
   // Portão de acesso. Fica depois de todos os hooks para não quebrar a ordem
   // entre renders — por isso é um early return e não um wrapper.
   if (status === 'bloqueado') {
-    return <Paywall stats={stats} onUnlock={unlock} revogada={revogada} />
+    return <Paywall stats={stats} revogada={revogada} />
   }
 
   return (

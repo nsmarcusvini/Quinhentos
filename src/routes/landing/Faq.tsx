@@ -44,7 +44,7 @@ const QUESTIONS: readonly { id: string; question: string; answer: string }[] = [
     id: 'trocar-aparelho',
     question: 'Perco o acesso se trocar de celular ou limpar o navegador?',
     answer:
-      'Não. Crie uma conta gratuita dentro do app (Minha conta) e o desafio passa a ficar salvo na nuvem — no aparelho novo é só entrar com o mesmo e-mail e senha, e tudo volta. Sem conta, também dá: seu código de compra fica visível nas Configurações e o progresso sai em Exportar JSON.',
+      'Não. Seu acesso e seu progresso ficam na conta que você cria antes de pagar — no aparelho novo é só entrar com o mesmo e-mail e senha, e tudo volta no lugar. Não existe código para guardar nem arquivo para transferir.',
   },
   {
     id: 'dados',

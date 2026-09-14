@@ -26,15 +26,13 @@ const MAX_TENTATIVAS = 45
 export default function Acesso() {
   const [params] = useSearchParams()
   const navigate = useNavigate()
-  const { unlock } = useEntitlement()
+  const { recarregar } = useEntitlement()
 
   const sessionId = params.get('session_id')
 
   // Sem session_id já nasce em erro: derivar no estado inicial evita um render
   // extra e o "resgatando" piscando para quem caiu aqui sem vir do checkout.
   const [situacao, setSituacao] = useState<Situacao>(sessionId ? 'resgatando' : 'erro')
-  const [chave, setChave] = useState<string | null>(null)
-  const [copiado, setCopiado] = useState(false)
   const [tentativas, setTentativas] = useState(0)
   const jaTentou = useRef(false)
 
@@ -42,9 +40,9 @@ export default function Acesso() {
     if (!sessionId) return
 
     try {
-      const emitida = await resgatarLicenca(sessionId)
-      setChave(emitida)
-      await unlock(emitida)
+      await resgatarLicenca(sessionId)
+      // A licença já nasceu amarrada à conta; só falta o app enxergar.
+      await recarregar()
       trackEvent('checkout_success')
       setSituacao('pronto')
     } catch (erro) {
@@ -57,7 +55,7 @@ export default function Acesso() {
       console.error('[Desafio 500] Falha ao resgatar a licença.', erro)
       setSituacao('erro')
     }
-  }, [sessionId, unlock])
+  }, [sessionId, recarregar])
 
   // Primeira tentativa. O ref segura o StrictMode, que monta duas vezes em dev.
   useEffect(() => {
@@ -165,29 +163,10 @@ export default function Acesso() {
             <h1 className="mt-5 text-2xl font-bold tracking-tight text-ink">
               Pronto. O desafio é seu.
             </h1>
-            <p className="mt-2 text-sm text-muted">Antes de entrar, guarde isto:</p>
+            <p className="mt-2 text-sm leading-relaxed text-muted">
+              Seu acesso ficou salvo na conta. Em qualquer aparelho, é só entrar.
+            </p>
 
-            {chave && (
-              <div className="mt-5 rounded-2xl border border-brand-500/30 bg-brand-500/5 p-4">
-                <p className="text-xs uppercase tracking-wider text-muted">Seu código de compra</p>
-                <p className="mt-1.5 select-all font-mono text-lg font-semibold tracking-wide text-ink">
-                  {chave}
-                </p>
-                <Button
-                  variant="secondary"
-                  className="mt-3"
-                  onClick={() => {
-                    void navigator.clipboard?.writeText(chave).then(() => setCopiado(true))
-                  }}
-                >
-                  {copiado ? 'Copiado!' : 'Copiar código'}
-                </Button>
-                <p className="mt-3 text-xs leading-relaxed text-muted">
-                  Ela destrava o app em qualquer aparelho. Também fica guardada nas Configurações,
-                  então dá para pegar de volta depois.
-                </p>
-              </div>
-            )}
 
             <Button
               variant="primary"
@@ -195,7 +174,7 @@ export default function Acesso() {
               className="mt-4"
               onClick={() => navigate('/app', { replace: true })}
             >
-              Já guardei — abrir o desafio
+              Abrir o desafio
             </Button>
           </>
         )}

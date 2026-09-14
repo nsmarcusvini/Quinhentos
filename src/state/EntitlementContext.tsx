@@ -7,7 +7,7 @@ import {
   useState,
   type ReactNode,
 } from 'react'
-import { validarLicencaNoServidor, vincularLicenca, type MotivoRecusa } from '../lib/api'
+import { validarLicencaNoServidor, type MotivoRecusa } from '../lib/api'
 import { supabase } from '../lib/supabase'
 import { useAuth } from './AuthContext'
 
@@ -87,8 +87,8 @@ interface Entitlement {
   lock: () => void
   /** true quando o acesso caiu por reembolso ou contestação. */
   revogada: boolean
-  /** true enquanto a licença da conta ainda está sendo consultada. */
-  consultandoConta: boolean
+  /** Reconsulta a licença da conta. Use depois de um pagamento. */
+  recarregar: () => Promise<void>
 }
 
 const EntitlementContext = createContext<Entitlement | null>(null)
@@ -106,7 +106,6 @@ export function EntitlementProvider({ children }: { children: ReactNode }) {
   const [license, setLicense] = useState<License | null>(readLicense)
 
   const [revogada, setRevogada] = useState(false)
-  const [consultandoConta, setConsultandoConta] = useState(false)
 
   const unlock = useCallback(async (rawKey: string) => {
     const key = normalizeLicenseKey(rawKey)
@@ -166,58 +165,37 @@ export function EntitlementProvider({ children }: { children: ReactNode }) {
   }, [chave, lock])
 
   /**
-   * Entrar na conta destrava o app sem precisar da chave — é o principal
-   * motivo de existir conta. A leitura é permitida pela RLS: a policy de
-   * `licenses` só devolve a linha de quem está logado.
+   * Consulta a licença da conta — é o que destrava o app ao entrar, e de novo
+   * logo depois de um pagamento, sem precisar recarregar a página.
    *
-   * O caminho inverso também vale: se o aparelho já tem chave e a conta ainda
-   * não tem licença, a chave é vinculada aqui.
+   * A leitura é permitida pela RLS: a policy de `licenses` só devolve a linha
+   * de quem está logado.
    */
-  useEffect(() => {
+  const recarregar = useCallback(async () => {
     if (!usuario) return
 
-    let cancelado = false
-    setConsultandoConta(true)
+    const { data } = await supabase
+      .from('licenses')
+      .select('key, revoked_at')
+      .eq('user_id', usuario.id)
+      .is('revoked_at', null)
+      .maybeSingle()
 
-    void (async () => {
-      try {
-        const { data } = await supabase
-          .from('licenses')
-          .select('key, revoked_at')
-          .eq('user_id', usuario.id)
-          .is('revoked_at', null)
-          .maybeSingle()
+    if (!data?.key) return
 
-        if (cancelado) return
-
-        if (data?.key) {
-          // A conta tem licença: grava no aparelho e pronto.
-          const proxima: License = { key: data.key, unlockedAt: Date.now() }
-          try {
-            window.localStorage.setItem(LICENSE_KEY, JSON.stringify(proxima))
-          } catch {
-            // Modo privado: vale só para esta sessão.
-          }
-          setLicense(proxima)
-          setRevogada(false)
-        } else if (license) {
-          // A conta ainda não tem licença, mas este aparelho tem: vincula.
-          await vincularLicenca(license.key).catch((erro) => {
-            console.warn('[Desafio 500] Não consegui vincular a chave à conta.', erro)
-          })
-        }
-      } finally {
-        if (!cancelado) setConsultandoConta(false)
-      }
-    })()
-
-    return () => {
-      cancelado = true
+    const proxima: License = { key: data.key, unlockedAt: Date.now() }
+    try {
+      window.localStorage.setItem(LICENSE_KEY, JSON.stringify(proxima))
+    } catch {
+      // Modo privado: vale só para esta sessão.
     }
-    // `license` fica de fora de propósito: só interessa o valor no momento em
-    // que a conta entra, e incluí-lo criaria um laço com o setLicense acima.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    setLicense(proxima)
+    setRevogada(false)
   }, [usuario])
+
+  useEffect(() => {
+    void recarregar()
+  }, [recarregar])
 
   const valor = useMemo<Entitlement>(
     () => ({
@@ -226,9 +204,9 @@ export function EntitlementProvider({ children }: { children: ReactNode }) {
       unlock,
       lock,
       revogada,
-      consultandoConta,
+      recarregar,
     }),
-    [license, unlock, lock, revogada, consultandoConta],
+    [license, unlock, lock, revogada, recarregar],
   )
 
   return <EntitlementContext.Provider value={valor}>{children}</EntitlementContext.Provider>

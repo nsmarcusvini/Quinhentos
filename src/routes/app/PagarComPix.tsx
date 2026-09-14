@@ -3,6 +3,7 @@ import { Button } from '../../components/ui/Button'
 import { CheckIcon, CloseIcon } from '../../components/ui/icons'
 import { trackEvent } from '../../lib/analytics'
 import { conferirPix, criarPix, type CobrancaPix } from '../../lib/api'
+import { useEntitlement } from '../../state/EntitlementContext'
 import { formatCurrency } from '../../lib/format'
 import { PRICE_BRL, SUPPORT_EMAIL } from '../../lib/pricing'
 
@@ -13,7 +14,6 @@ const INTERVALO_MS = 3000
 const MAX_TENTATIVAS = 100
 
 interface PagarComPixProps {
-  onPago: (chave: string) => void
   onFechar: () => void
 }
 
@@ -21,7 +21,8 @@ interface PagarComPixProps {
  * Checkout transparente: o QR aparece dentro do app, sem sair para lugar
  * nenhum. Enquanto a pessoa paga, o navegador vai perguntando se caiu.
  */
-export function PagarComPix({ onPago, onFechar }: PagarComPixProps) {
+export function PagarComPix({ onFechar }: PagarComPixProps) {
+  const { recarregar } = useEntitlement()
   const [fase, setFase] = useState<Fase>('criando')
   const [cobranca, setCobranca] = useState<CobrancaPix | null>(null)
   const [copiado, setCopiado] = useState(false)
@@ -51,7 +52,8 @@ export function PagarComPix({ onPago, onFechar }: PagarComPixProps) {
       const resultado = await conferirPix(cobranca.id)
       if (resultado.key) {
         trackEvent('checkout_success', { metodo: 'pix' })
-        onPago(resultado.key)
+        // A licença já nasceu amarrada à conta; só falta o app enxergar.
+        await recarregar()
         return
       }
       // EXPIRED, CANCELLED e FAILED não voltam atrás: para de perguntar.
@@ -62,7 +64,7 @@ export function PagarComPix({ onPago, onFechar }: PagarComPixProps) {
       // Falha de rede não cancela a espera: o Pix pode cair mesmo assim.
       console.warn('[Desafio 500] Não consegui conferir o Pix agora.', erro)
     }
-  }, [cobranca, onPago])
+  }, [cobranca, recarregar])
 
   useEffect(() => {
     if (fase !== 'aguardando' || tentativas >= MAX_TENTATIVAS) return

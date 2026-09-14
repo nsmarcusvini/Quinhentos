@@ -9,6 +9,7 @@
  * assinado pelo domínio do Stripe.
  */
 import Stripe from 'npm:stripe@18'
+import { createClient } from 'npm:@supabase/supabase-js@2'
 
 const CORS: Record<string, string> = {
   'Access-Control-Allow-Origin': '*',
@@ -33,11 +34,22 @@ Deno.serve(async (req: Request) => {
   const stripeKey = Deno.env.get('STRIPE_SECRET_KEY')
   const priceId = Deno.env.get('STRIPE_PRICE_ID')
   const siteUrl = Deno.env.get('SITE_URL')
+  const supabaseUrl = Deno.env.get('SUPABASE_URL')
+  const serviceRole = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+  const anonKey = Deno.env.get('SUPABASE_ANON_KEY')
 
-  if (!stripeKey || !priceId || !siteUrl) {
+  if (!stripeKey || !priceId || !siteUrl || !supabaseUrl || !serviceRole || !anonKey) {
     console.error('Faltam variáveis de ambiente na função.')
     return json({ erro: 'configuracao_incompleta' }, 500)
   }
+
+  // A conta vem antes do pagamento: sem login não há compra.
+  const comoUsuario = createClient(supabaseUrl, anonKey, {
+    global: { headers: { Authorization: req.headers.get('Authorization') ?? '' } },
+  })
+  const { data: sessaoAuth } = await comoUsuario.auth.getUser()
+  const usuario = sessaoAuth?.user
+  if (!usuario) return json({ erro: 'nao_autenticado' }, 401)
 
   const base = siteUrl.replace(/\/+$/, '')
   const stripe = new Stripe(stripeKey)
@@ -49,9 +61,11 @@ Deno.serve(async (req: Request) => {
       success_url: `${base}/acesso?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${base}/app`,
       locale: 'pt-BR',
-      // O e-mail vira o caminho de recuperação da chave e a sua lista.
       customer_creation: 'always',
       billing_address_collection: 'auto',
+      // Amarra a compra à conta desde a origem; o e-mail já vem preenchido.
+      client_reference_id: usuario.id,
+      customer_email: usuario.email ?? undefined,
       payment_method_options: {
         pix: {
           // Padrão da Stripe são 4 horas. Para uma compra por impulso de
@@ -63,6 +77,14 @@ Deno.serve(async (req: Request) => {
     })
 
     if (!sessao.url) return json({ erro: 'sessao_sem_url' }, 500)
+
+    // Grava quem iniciou, enquanto ainda temos o usuário em mãos.
+    const admin = createClient(supabaseUrl, serviceRole)
+    const { error: erroIntencao } = await admin
+      .from('payment_intents')
+      .insert({ provider: 'stripe', external_id: sessao.id, user_id: usuario.id })
+    if (erroIntencao) console.error('Falha ao registrar a intenção:', erroIntencao)
+
     return json({ url: sessao.url })
   } catch (erro) {
     console.error('Falha ao criar checkout:', erro instanceof Error ? erro.message : erro)
