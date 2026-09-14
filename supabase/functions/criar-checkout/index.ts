@@ -16,6 +16,9 @@ const CORS: Record<string, string> = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 }
 
+/** Entre 10s e 3 dias, segundo a documentação do Pix. */
+const PIX_EXPIRA_EM_SEGUNDOS = 3600
+
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
     status,
@@ -49,6 +52,14 @@ Deno.serve(async (req: Request) => {
       // O e-mail vira o caminho de recuperação da chave e a sua lista.
       customer_creation: 'always',
       billing_address_collection: 'auto',
+      payment_method_options: {
+        pix: {
+          // Padrão da Stripe são 4 horas. Para uma compra por impulso de
+          // R$ 19,90 isso é tempo demais: deixa cobrança pendente pendurada e
+          // dilui a urgência. Uma hora cobre com folga abrir o app do banco.
+          expires_after_seconds: PIX_EXPIRA_EM_SEGUNDOS,
+        },
+      },
     })
 
     if (!sessao.url) return json({ erro: 'sessao_sem_url' }, 500)

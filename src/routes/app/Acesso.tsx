@@ -1,17 +1,27 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { Button } from '../../components/ui/Button'
 import { CheckIcon } from '../../components/ui/icons'
 import { trackEvent } from '../../lib/analytics'
 import { resgatarLicenca } from '../../lib/api'
+import { cn } from '../../lib/cn'
 import { SUPPORT_EMAIL } from '../../lib/pricing'
 import { useEntitlement } from '../../state/EntitlementContext'
 
-type Situacao = 'resgatando' | 'pronto' | 'erro'
+type Situacao = 'resgatando' | 'aguardando' | 'pronto' | 'erro'
+
+/** A cada 4s por ~3 minutos. Pix costuma confirmar em segundos. */
+const INTERVALO_MS = 4000
+const MAX_TENTATIVAS = 45
 
 /**
- * Volta do Stripe. Troca o session_id pela chave, destrava e segue para o app.
- * A pessoa não precisa copiar nada de e-mail nenhum.
+ * Volta do Stripe. Troca o session_id pela chave, destrava e mostra a chave.
+ *
+ * Cartão confirma na hora; Pix e boleto não. Daí o estado de espera: o
+ * pagamento pode ainda estar processando quando a pessoa chega aqui, e dizer
+ * "não consegui confirmar" nesse momento seria mentira — o dinheiro pode estar
+ * a caminho. Sem redirect automático: a chave é a única coisa que ela precisa
+ * guardar, e 1,6s não dá para ler e salvar 19 caracteres.
  */
 export default function Acesso() {
   const [params] = useSearchParams()
@@ -25,30 +35,50 @@ export default function Acesso() {
   const [situacao, setSituacao] = useState<Situacao>(sessionId ? 'resgatando' : 'erro')
   const [chave, setChave] = useState<string | null>(null)
   const [copiado, setCopiado] = useState(false)
+  const [tentativas, setTentativas] = useState(0)
   const jaTentou = useRef(false)
 
-  useEffect(() => {
-    // StrictMode monta duas vezes em dev; o resgate roda uma só.
-    if (jaTentou.current) return
-    jaTentou.current = true
-
+  const tentarResgatar = useCallback(async () => {
     if (!sessionId) return
 
-    void (async () => {
-      try {
-        const emitida = await resgatarLicenca(sessionId)
-        setChave(emitida)
-        await unlock(emitida)
-        trackEvent('checkout_success')
-        setSituacao('pronto')
-        // Sem redirect automático: a chave é a única coisa que a pessoa
-        // precisa guardar, e 1,6s não dá para ler e salvar 19 caracteres.
-      } catch (erro) {
-        console.error('[Desafio 500] Falha ao resgatar a licença.', erro)
-        setSituacao('erro')
+    try {
+      const emitida = await resgatarLicenca(sessionId)
+      setChave(emitida)
+      await unlock(emitida)
+      trackEvent('checkout_success')
+      setSituacao('pronto')
+    } catch (erro) {
+      // Pix e boleto ainda processando: não é falha, é espera.
+      if (erro instanceof Error && erro.message === 'pagamento_pendente') {
+        setSituacao('aguardando')
+        return
       }
-    })()
-  }, [navigate, sessionId, unlock])
+
+      console.error('[Desafio 500] Falha ao resgatar a licença.', erro)
+      setSituacao('erro')
+    }
+  }, [sessionId, unlock])
+
+  // Primeira tentativa. O ref segura o StrictMode, que monta duas vezes em dev.
+  useEffect(() => {
+    if (jaTentou.current || !sessionId) return
+    jaTentou.current = true
+    void tentarResgatar()
+  }, [sessionId, tentarResgatar])
+
+  // Enquanto estiver pendente, pergunta de novo de tempos em tempos.
+  useEffect(() => {
+    if (situacao !== 'aguardando' || tentativas >= MAX_TENTATIVAS) return
+
+    const timer = window.setTimeout(() => {
+      setTentativas((atual) => atual + 1)
+      void tentarResgatar()
+    }, INTERVALO_MS)
+
+    return () => window.clearTimeout(timer)
+  }, [situacao, tentativas, tentarResgatar])
+
+  const desistiu = tentativas >= MAX_TENTATIVAS
 
   return (
     <div className="flex min-h-dvh items-center justify-center bg-bg px-4">
@@ -62,6 +92,66 @@ export default function Acesso() {
             <p className="mt-5 text-base font-semibold text-ink">Confirmando seu pagamento…</p>
             <p className="mt-1 text-sm text-muted">Só um instante, não feche esta página.</p>
           </>
+        )}
+
+        {situacao === 'aguardando' && (
+          <div aria-live="polite">
+            <div
+              aria-hidden="true"
+              className={cn(
+                'mx-auto h-12 w-12 rounded-2xl bg-brand-500/20',
+                !desistiu && 'animate-pulse',
+              )}
+            />
+
+            {desistiu ? (
+              <>
+                <h1 className="mt-5 text-xl font-bold tracking-tight text-ink">
+                  O Pix ainda não caiu
+                </h1>
+                <p className="mt-3 text-sm leading-relaxed text-muted">
+                  Pagamento por Pix quase sempre confirma em segundos, mas este está demorando
+                  mais que o normal. Se você já pagou, o acesso está garantido.
+                </p>
+                <p className="mt-3 rounded-2xl border border-line bg-surface p-3 text-sm leading-relaxed text-ink">
+                  Guarde o endereço desta página. Quando o pagamento confirmar, é só abri-la de
+                  novo que o desafio destrava.
+                </p>
+                <Button
+                  variant="primary"
+                  className="mt-4"
+                  onClick={() => {
+                    setTentativas(0)
+                    setSituacao('resgatando')
+                    void tentarResgatar()
+                  }}
+                >
+                  Verificar de novo
+                </Button>
+              </>
+            ) : (
+              <>
+                <h1 className="mt-5 text-xl font-bold tracking-tight text-ink">
+                  Aguardando a confirmação do Pix
+                </h1>
+                <p className="mt-3 text-sm leading-relaxed text-muted">
+                  Assim que o seu banco confirmar, o desafio destrava sozinho aqui. Costuma levar
+                  poucos segundos — pode deixar esta página aberta.
+                </p>
+              </>
+            )}
+
+            <p className="mt-6 text-xs leading-relaxed text-muted">
+              Pagou e continua travado? Escreva para{' '}
+              <a
+                href={`mailto:${SUPPORT_EMAIL}`}
+                className="text-ink underline underline-offset-2 hover:text-accent"
+              >
+                {SUPPORT_EMAIL}
+              </a>{' '}
+              que eu libero na mão.
+            </p>
+          </div>
         )}
 
         {situacao === 'pronto' && (
@@ -123,7 +213,13 @@ export default function Acesso() {
 
             <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-center">
               {sessionId && (
-                <Button variant="primary" onClick={() => window.location.reload()}>
+                <Button
+                  variant="primary"
+                  onClick={() => {
+                    setSituacao('resgatando')
+                    void tentarResgatar()
+                  }}
+                >
                   Tentar de novo
                 </Button>
               )}
