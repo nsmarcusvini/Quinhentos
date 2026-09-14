@@ -51,6 +51,13 @@ export default function Privacidade() {
                 <td className="py-2.5 pr-3">Autenticar você para sincronizar o desafio</td>
                 <td className="py-2.5">Execução de contrato (art. 7º, V)</td>
               </tr>
+              <tr className="border-b border-line/60">
+                <td className="py-2.5 pr-3 text-ink">Nome e idade</td>
+                <td className="py-2.5 pr-3">
+                  Tratar você pelo nome e entender para quem o desafio funciona
+                </td>
+                <td className="py-2.5">Consentimento (art. 7º, I)</td>
+              </tr>
               <tr>
                 <td className="py-2.5 pr-3 text-ink">Progresso do desafio</td>
                 <td className="py-2.5 pr-3">

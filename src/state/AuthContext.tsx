@@ -24,6 +24,20 @@ export interface ResultadoAuth {
   erro?: ErroAuth
 }
 
+/**
+ * O que o cadastro coleta além das credenciais.
+ *
+ * Vai para o `user_metadata` do Supabase, e não para uma tabela nossa: é dado
+ * da conta, nasce junto com ela e some junto com ela. Uma tabela `perfis`
+ * paralela precisaria de RLS própria, de trigger para criar a linha e de outro
+ * caminho para apagar — três lugares para dessincronizar em troca de nada,
+ * enquanto forem dois campos que só o dono e o painel leem.
+ */
+export interface PerfilCadastro {
+  nome: string
+  idade: number
+}
+
 interface AuthContextValue {
   /** null enquanto a sessão salva ainda não foi lida. */
   carregando: boolean
@@ -36,7 +50,7 @@ interface AuthContextValue {
    */
   expirada: boolean
   entrar: (email: string, senha: string) => Promise<ResultadoAuth>
-  cadastrar: (email: string, senha: string) => Promise<ResultadoAuth>
+  cadastrar: (email: string, senha: string, perfil: PerfilCadastro) => Promise<ResultadoAuth>
   sair: () => Promise<void>
   recuperarSenha: (email: string) => Promise<ResultadoAuth>
 }
@@ -104,17 +118,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return error ? { ok: false, erro: traduzirErro(error.message) } : { ok: true }
   }, [])
 
-  const cadastrar = useCallback(async (email: string, senha: string): Promise<ResultadoAuth> => {
-    const { data, error } = await supabase.auth.signUp({
-      email: email.trim(),
-      password: senha,
-    })
-    if (error) return { ok: false, erro: traduzirErro(error.message) }
+  const cadastrar = useCallback(
+    async (email: string, senha: string, perfil: PerfilCadastro): Promise<ResultadoAuth> => {
+      const { data, error } = await supabase.auth.signUp({
+        email: email.trim(),
+        password: senha,
+        // Guardado na criação porque é a única hora em que a pessoa está
+        // preenchendo formulário. Pedir depois seria uma tela a mais entre o
+        // cadastro e o desafio, que é justamente onde se perde gente.
+        options: { data: { nome: perfil.nome.trim(), idade: perfil.idade } },
+      })
+      if (error) return { ok: false, erro: traduzirErro(error.message) }
 
-    // Com confirmação de e-mail ligada o Supabase devolve usuário sem sessão.
-    if (data.user && !data.session) return { ok: false, erro: 'confirmacao_pendente' }
-    return { ok: true }
-  }, [])
+      // Com confirmação de e-mail ligada o Supabase devolve usuário sem sessão.
+      if (data.user && !data.session) return { ok: false, erro: 'confirmacao_pendente' }
+      return { ok: true }
+    },
+    [],
+  )
 
   const sair = useCallback(async () => {
     await supabase.auth.signOut()
