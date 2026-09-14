@@ -17,6 +17,9 @@ export const GUARANTEE_DAYS = 7
  */
 export const CHECKOUT_HREF = '/app'
 
+/** Contato de suporte e reembolso, usado no FAQ e nas Configurações. */
+export const SUPPORT_EMAIL = 'eu.marcussouza@gmail.com'
+
 /**
  * Âncora de preço usada na copy. Assinaturas de apps de finanças no Brasil
  * ficam nessa faixa por MÊS — é a comparação que torna R$ 19,90 barato.

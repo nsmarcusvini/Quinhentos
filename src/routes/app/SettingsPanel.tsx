@@ -13,6 +13,7 @@ import {
 import { cn } from '../../lib/cn'
 import { backupFilename, downloadJson } from '../../lib/download'
 import { formatInteger, pluralize } from '../../lib/format'
+import { GUARANTEE_DAYS, SUPPORT_EMAIL } from '../../lib/pricing'
 import { useChallenge } from '../../state/ChallengeContext'
 import { parseBackup } from '../../state/storage'
 import type { ChallengeState, ThemePreference } from '../../state/types'
@@ -191,6 +192,21 @@ export function SettingsPanel() {
             Zerar o desafio
           </Button>
         </Field>
+      </div>
+
+      <div className="border-t border-line pt-5">
+        <p className="text-xs uppercase tracking-wider text-muted">Sua compra</p>
+        <p className="mt-2 text-xs leading-relaxed text-muted">
+          Acesso vitalício, pagamento único, sem renovação. Dúvidas, problema com a chave de
+          acesso ou reembolso nos primeiros {GUARANTEE_DAYS} dias:{' '}
+          <a
+            href={`mailto:${SUPPORT_EMAIL}`}
+            className="text-ink underline underline-offset-2 transition-colors duration-150 hover:text-accent"
+          >
+            {SUPPORT_EMAIL}
+          </a>
+          .
+        </p>
       </div>
 
       {/* --- diálogos ------------------------------------------------------ */}

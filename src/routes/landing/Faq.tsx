@@ -3,7 +3,7 @@ import { ChevronDownIcon } from '../../components/ui/icons'
 import { trackEvent } from '../../lib/analytics'
 import { HOUSE_COUNT, TOTAL_AMOUNT } from '../../lib/constants'
 import { formatCurrency, formatCurrencyCompact } from '../../lib/format'
-import { GUARANTEE_DAYS, PRICE_BRL } from '../../lib/pricing'
+import { GUARANTEE_DAYS, PRICE_BRL, SUPPORT_EMAIL } from '../../lib/pricing'
 
 const QUESTIONS: readonly { id: string; question: string; answer: string }[] = [
   {
@@ -15,7 +15,7 @@ const QUESTIONS: readonly { id: string; question: string; answer: string }[] = [
   {
     id: 'garantia',
     question: 'E se eu não gostar?',
-    answer: `Você tem ${GUARANTEE_DAYS} dias para pedir o dinheiro de volta, sem precisar justificar e sem formulário de retenção. Um e-mail resolve. Prefiro devolver ${formatCurrency(PRICE_BRL)} a ter alguém carregando um app que não usa.`,
+    answer: `Você tem ${GUARANTEE_DAYS} dias para pedir o dinheiro de volta, sem precisar justificar e sem formulário de retenção. Um e-mail para ${SUPPORT_EMAIL} resolve. Prefiro devolver ${formatCurrency(PRICE_BRL)} a ter alguém carregando um app que não usa.`,
   },
   {
     id: 'por-que-pago',
