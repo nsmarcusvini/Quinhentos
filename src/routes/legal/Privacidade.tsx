@@ -1,9 +1,9 @@
 import { SUPPORT_EMAIL } from '../../lib/pricing'
 import { DocumentoLegal, Destaque, Secao } from './DocumentoLegal'
 
-/** Trocar por razão social e CNPJ/CPF antes de vender. */
-const CONTROLADOR = '[SEU NOME OU RAZÃO SOCIAL]'
-const DOCUMENTO = '[SEU CPF OU CNPJ]'
+/** Identificação do vendedor, exigida pelo art. 31 do CDC. */
+const CONTROLADOR = 'Marcus Vinicius Nascimento de Souza'
+const DOCUMENTO = 'CPF 526.985.108-38'
 
 const ATUALIZADO_EM = new Date('2026-09-14T12:00:00').getTime()
 
