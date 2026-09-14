@@ -1,0 +1,118 @@
+<!--
+  Supabase → Authentication → Emails → Templates → "Reset password"
+  Assunto sugerido: Redefinir sua senha — Desafio 500
+
+  Este é o único e-mail que NÃO dá para evitar no login por senha: se a pessoa
+  esquecer, sem ele não há como entrar.
+
+  Variaveis do Supabase usadas: ConfirmationURL e Email.
+
+  Por que claro e não escuro, como o app: cliente de e-mail é hostil. Gmail e
+  Apple Mail invertem cores sozinhos no modo escuro e o Outlook desktop renderiza
+  fundo escuro mal. Fundo claro com o verde da marca chega legível em todo lugar.
+  Layout em tabela e estilo inline pelo mesmo motivo — flexbox e <style> no head
+  não sobrevivem ao Gmail.
+-->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f6f8fb;margin:0;padding:32px 12px;">
+  <tr>
+    <td align="center">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:520px;background-color:#ffffff;border-radius:20px;border:1px solid #dce3ec;">
+
+        <!-- marca -->
+        <tr>
+          <td style="padding:32px 32px 0 32px;">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td>
+                  <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                    <tr>
+                      <td width="7" height="7" style="background-color:#15803d;border-radius:2px;font-size:0;line-height:0;">&nbsp;</td>
+                      <td width="3" style="font-size:0;line-height:0;">&nbsp;</td>
+                      <td width="7" height="7" style="background-color:#86efac;border-radius:2px;font-size:0;line-height:0;">&nbsp;</td>
+                      <td width="3" style="font-size:0;line-height:0;">&nbsp;</td>
+                      <td width="7" height="7" style="background-color:#15803d;border-radius:2px;font-size:0;line-height:0;">&nbsp;</td>
+                    </tr>
+                    <tr><td colspan="5" height="3" style="font-size:0;line-height:0;">&nbsp;</td></tr>
+                    <tr>
+                      <td width="7" height="7" style="background-color:#86efac;border-radius:2px;font-size:0;line-height:0;">&nbsp;</td>
+                      <td width="3" style="font-size:0;line-height:0;">&nbsp;</td>
+                      <td width="7" height="7" style="background-color:#15803d;border-radius:2px;font-size:0;line-height:0;">&nbsp;</td>
+                      <td width="3" style="font-size:0;line-height:0;">&nbsp;</td>
+                      <td width="7" height="7" style="background-color:#86efac;border-radius:2px;font-size:0;line-height:0;">&nbsp;</td>
+                    </tr>
+                  </table>
+                </td>
+                <td style="padding-left:10px;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:#55617a;">
+                  Desafio 500
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- corpo -->
+        <tr>
+          <td style="padding:24px 32px 0 32px;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;">
+            <h1 style="margin:0;font-size:26px;line-height:1.25;font-weight:700;color:#0d1220;letter-spacing:-0.5px;">
+              Redefinir sua senha
+            </h1>
+            <p style="margin:14px 0 0 0;font-size:15px;line-height:1.6;color:#55617a;">
+              Alguém pediu uma nova senha para a conta <strong style="color:#0d1220;font-weight:600;">{{ .Email }}</strong>.
+              Se foi você, é só clicar abaixo e escolher outra. Seu desafio continua intacto.
+            </p>
+          </td>
+        </tr>
+
+        <!-- botão -->
+        <tr>
+          <td style="padding:26px 32px 0 32px;">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td align="center" bgcolor="#15803d" style="border-radius:14px;">
+                  <a href="{{ .ConfirmationURL }}"
+                     style="display:inline-block;padding:16px 30px;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;font-size:16px;font-weight:600;line-height:1;color:#ffffff;text-decoration:none;border-radius:14px;">
+                    Escolher nova senha
+                  </a>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- link de reserva: muitos clientes bloqueiam ou quebram o botão -->
+        <tr>
+          <td style="padding:22px 32px 0 32px;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;">
+            <p style="margin:0;font-size:12px;line-height:1.5;color:#55617a;">
+              O botão não funcionou? Copie e cole este endereço no navegador:
+            </p>
+            <p style="margin:6px 0 0 0;font-size:12px;line-height:1.5;word-break:break-all;">
+              <a href="{{ .ConfirmationURL }}" style="color:#15803d;text-decoration:underline;">{{ .ConfirmationURL }}</a>
+            </p>
+          </td>
+        </tr>
+
+        <!-- rodapé -->
+        <tr>
+          <td style="padding:26px 32px 30px 32px;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+              <tr><td height="1" style="background-color:#dce3ec;font-size:0;line-height:0;">&nbsp;</td></tr>
+            </table>
+            <p style="margin:18px 0 0 0;font-size:12px;line-height:1.6;color:#55617a;">
+              Este link vale por 1 hora e só pode ser usado uma vez.
+              <strong style="color:#0d1220;font-weight:600;">Não foi você que pediu?</strong>
+              Pode ignorar — sua senha atual continua valendo e ninguém entrou na sua conta.
+            </p>
+            <p style="margin:12px 0 0 0;font-size:12px;line-height:1.6;color:#55617a;">
+              Dúvidas: <a href="mailto:eu.marcussouza@gmail.com" style="color:#15803d;text-decoration:underline;">eu.marcussouza@gmail.com</a>
+            </p>
+          </td>
+        </tr>
+
+      </table>
+
+      <p style="margin:18px 0 0 0;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;font-size:11px;line-height:1.5;color:#8b95a8;">
+        Desafio 500 — 500 casinhas, R$ 125.250, uma de cada vez.
+      </p>
+    </td>
+  </tr>
+</table>
