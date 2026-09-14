@@ -4,6 +4,7 @@ import { Button } from '../../components/ui/Button'
 import { ArrowRightIcon, CheckIcon } from '../../components/ui/icons'
 import { trackEvent } from '../../lib/analytics'
 import { criarCheckout, type MotivoRecusa } from '../../lib/api'
+import { PagarComPix } from './PagarComPix'
 import { cn } from '../../lib/cn'
 import { formatCurrency, formatCurrencyCompact } from '../../lib/format'
 import { GUARANTEE_DAYS, PRICE_BRL, SUPPORT_EMAIL } from '../../lib/pricing'
@@ -34,6 +35,7 @@ export function Paywall({ stats, onUnlock, revogada }: PaywallProps) {
   const [checking, setChecking] = useState(false)
   const [abrindoCheckout, setAbrindoCheckout] = useState(false)
   const [erroCheckout, setErroCheckout] = useState<string | null>(null)
+  const [pagandoComPix, setPagandoComPix] = useState(false)
 
   const comprar = async () => {
     setAbrindoCheckout(true)
@@ -100,6 +102,16 @@ export function Paywall({ stats, onUnlock, revogada }: PaywallProps) {
           histórico, sorteio e uso offline.
         </p>
 
+        {pagandoComPix ? (
+          <div className="mt-6">
+            <PagarComPix
+              onPago={(chaveEmitida) => {
+                void onUnlock(chaveEmitida)
+              }}
+              onFechar={() => setPagandoComPix(false)}
+            />
+          </div>
+        ) : (
         <div className="card mt-6 p-5">
           <p className="num text-4xl font-bold leading-none text-ink">
             {formatCurrency(PRICE_BRL)}
@@ -140,7 +152,26 @@ export function Paywall({ stats, onUnlock, revogada }: PaywallProps) {
               {erroCheckout}
             </p>
           )}
+
+          <div className="mt-3 flex items-center gap-3">
+            <span className="h-px flex-1 bg-line" />
+            <span className="text-xs uppercase tracking-wider text-muted">ou</span>
+            <span className="h-px flex-1 bg-line" />
+          </div>
+
+          <Button
+            variant="secondary"
+            fullWidth
+            className="mt-3"
+            onClick={() => setPagandoComPix(true)}
+          >
+            Pagar com Pix
+          </Button>
+          <p className="mt-1.5 text-center text-xs text-muted">
+            Cai na hora, sem sair do app
+          </p>
         </div>
+        )}
 
         <div className="mt-6">
           <label htmlFor={fieldId} className="text-sm font-medium text-ink">

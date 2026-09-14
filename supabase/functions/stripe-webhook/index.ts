@@ -39,6 +39,8 @@ const ok = (corpo: Record<string, unknown>) =>
 async function emitir(supabase: SupabaseClient, sessao: Stripe.Checkout.Session) {
   const { error } = await supabase.from('licenses').insert({
     key: gerarChave(),
+    provider: 'stripe',
+    external_id: sessao.id,
     stripe_session_id: sessao.id,
     stripe_payment_intent: typeof sessao.payment_intent === 'string' ? sessao.payment_intent : null,
     customer_email: sessao.customer_details?.email ?? sessao.customer_email ?? null,

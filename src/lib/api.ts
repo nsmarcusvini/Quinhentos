@@ -59,6 +59,31 @@ export async function resgatarLicenca(sessionId: string): Promise<string> {
   return key
 }
 
+export interface CobrancaPix {
+  id: string
+  /** Código copia-e-cola do Pix. */
+  brCode: string
+  /** QR já pronto como data:image/png;base64. */
+  brCodeBase64: string
+  expiresAt: string
+  devMode: boolean
+}
+
+/** Cria a cobrança Pix no AbacatePay. */
+export async function criarPix(): Promise<CobrancaPix> {
+  return chamar<CobrancaPix>('criar-pix', {})
+}
+
+export interface StatusPix {
+  status?: string
+  key?: string
+}
+
+/** Pergunta se o Pix já caiu. Quando cai, vem a chave junto. */
+export async function conferirPix(id: string): Promise<StatusPix> {
+  return chamar<StatusPix>('conferir-pix', { id })
+}
+
 /** Amarra a chave à conta logada. Depois disso o login sozinho destrava. */
 export async function vincularLicenca(key: string): Promise<void> {
   await chamar<{ vinculada: boolean }>('vincular-licenca', { key })

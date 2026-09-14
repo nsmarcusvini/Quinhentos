@@ -86,7 +86,8 @@ Deno.serve(async (req: Request) => {
   const { data: existente } = await supabase
     .from('licenses')
     .select('key, revoked_at')
-    .eq('stripe_session_id', sessionId)
+    .eq('provider', 'stripe')
+    .eq('external_id', sessionId)
     .maybeSingle()
 
   if (existente?.revoked_at) {
@@ -101,6 +102,8 @@ Deno.serve(async (req: Request) => {
   const key = gerarChave()
   const { error } = await supabase.from('licenses').insert({
     key,
+    provider: 'stripe',
+    external_id: sessionId,
     stripe_session_id: sessionId,
     stripe_payment_intent: sessao.payment_intent ?? null,
     customer_email: sessao.customer_details?.email ?? sessao.customer_email ?? null,
@@ -114,7 +117,8 @@ Deno.serve(async (req: Request) => {
     const { data: apos } = await supabase
       .from('licenses')
       .select('key')
-      .eq('stripe_session_id', sessionId)
+      .eq('provider', 'stripe')
+      .eq('external_id', sessionId)
       .maybeSingle()
 
     if (apos) return json({ key: apos.key, ja_emitida: true })
