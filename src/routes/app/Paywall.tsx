@@ -1,9 +1,10 @@
 import { useId, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Button } from '../../components/ui/Button'
-import { ArrowRightIcon, CheckIcon } from '../../components/ui/icons'
+import { ArrowRightIcon, CheckIcon, ChevronDownIcon } from '../../components/ui/icons'
 import { trackEvent } from '../../lib/analytics'
 import { criarCheckout, type MotivoRecusa } from '../../lib/api'
+import { FormularioAuth } from './FormularioAuth'
 import { PagarComPix } from './PagarComPix'
 import { cn } from '../../lib/cn'
 import { formatCurrency, formatCurrencyCompact } from '../../lib/format'
@@ -19,10 +20,10 @@ interface PaywallProps {
 }
 
 const MENSAGENS: Record<MotivoRecusa, string> = {
-  formato: 'Formato inválido. A chave tem o padrão D500-0000-0000-0000.',
-  inexistente: 'Chave não encontrada. Confira o e-mail da compra e tente de novo.',
-  revogada: 'Esta chave foi cancelada porque a compra foi reembolsada ou contestada.',
-  indisponivel: 'Não consegui conferir a chave agora. Verifique sua conexão e tente de novo.',
+  formato: 'Formato inválido. O código tem o padrão D500-0000-0000-0000.',
+  inexistente: 'Código não encontrado. Confira se copiou inteiro e tente de novo.',
+  revogada: 'Este código foi cancelado porque a compra foi reembolsada ou contestada.',
+  indisponivel: 'Não consegui conferir o código agora. Verifique sua conexão e tente de novo.',
 }
 
 /** Chave de desenvolvimento, aceita só em dev pelo formato padrão. */
@@ -74,7 +75,7 @@ export function Paywall({ stats, onUnlock, revogada }: PaywallProps) {
           <div className="mt-5 rounded-2xl border border-danger/40 bg-danger/10 p-4">
             <p className="text-sm font-semibold text-ink">Seu acesso foi encerrado</p>
             <p className="mt-1 text-xs leading-relaxed text-muted">
-              A compra desta chave foi reembolsada ou contestada. Seu progresso continua salvo
+              A compra deste código foi reembolsada ou contestada. Seu progresso continua salvo
               neste aparelho — se foi engano, escreva para {SUPPORT_EMAIL}.
             </p>
           </div>
@@ -174,13 +175,44 @@ export function Paywall({ stats, onUnlock, revogada }: PaywallProps) {
         </div>
         )}
 
-        <div className="mt-6">
-          <label htmlFor={fieldId} className="text-sm font-medium text-ink">
-            Já comprou? Cole sua chave de acesso
+        {/* Recolhido de propósito: quem compra nunca digita isto — o app
+            destrava sozinho, e quem tem conta destrava entrando nela. Aberto,
+            este campo disputava atenção com o botão de compra. */}
+        <details className="group mt-6">
+          <summary className="inline-flex min-h-[44px] cursor-pointer list-none items-center gap-1.5 text-sm text-muted transition-colors duration-150 hover:text-ink marker:content-none [&::-webkit-details-marker]:hidden">
+            Já comprou? Recuperar meu acesso
+            <ChevronDownIcon
+              width={16}
+              height={16}
+              className="transition-transform duration-200 group-open:rotate-180"
+            />
+          </summary>
+
+          {/* Entrar vem primeiro: é o caminho melhor, e traz o progresso junto.
+              Sem isto aqui, quem comprasse num aparelho ficaria trancado do
+              lado de fora em qualquer outro — o botão "Minha conta" só existe
+              depois do app destravado. */}
+          <p className="mt-3 text-sm font-medium text-ink">Entrar na minha conta</p>
+          <p className="mt-0.5 text-xs leading-relaxed text-muted">
+            Se você criou conta, entrar já destrava o desafio e traz seu progresso de volta.
+          </p>
+          <div className="mt-3">
+            <FormularioAuth modoInicial="entrar" />
+          </div>
+
+          <div className="mt-6 flex items-center gap-3">
+            <span className="h-px flex-1 bg-line" />
+            <span className="text-xs uppercase tracking-wider text-muted">ou</span>
+            <span className="h-px flex-1 bg-line" />
+          </div>
+
+          <label htmlFor={fieldId} className="mt-4 block text-sm font-medium text-ink">
+            Código de compra
           </label>
-          <p className="mt-0.5 text-xs text-muted">
-            Ela aparece na tela logo depois da compra e fica guardada nas Configurações, no
-            formato D500-0000-0000-0000. Se você já tem conta, entrar nela também destrava.
+          <p className="mt-0.5 text-xs leading-relaxed text-muted">
+            É o código que apareceu na tela logo depois do pagamento, no formato
+            D500-0000-0000-0000. Ele também fica guardado em Configurações, no aparelho onde você
+            comprou. Se você criou conta, entrar nela já destrava — sem precisar de código.
           </p>
 
           <form
@@ -215,7 +247,7 @@ export function Paywall({ stats, onUnlock, revogada }: PaywallProps) {
               {error}
             </p>
           )}
-        </div>
+        </details>
 
         <nav aria-label="Documentos" className="mt-8 flex justify-center gap-5 text-xs text-muted">
           <Link to="/termos" className="underline underline-offset-2 hover:text-ink">

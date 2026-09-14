@@ -200,8 +200,8 @@ export function SettingsPanel() {
       {license && (
         <div className="border-t border-line pt-5">
           <Field
-            label="Sua chave de acesso"
-            hint="Destrava o app em outro aparelho. Guarde junto com o backup."
+            label="Seu código de compra"
+            hint="Destrava o app em outro aparelho, sem precisar de conta. Guarde junto com o backup."
           >
             <div className="flex gap-2">
               <p className="flex h-11 flex-1 select-all items-center rounded-xl border border-line bg-surface-2 px-3 font-mono text-sm text-ink">
@@ -226,7 +226,7 @@ export function SettingsPanel() {
       <div className="border-t border-line pt-5">
         <p className="text-xs uppercase tracking-wider text-muted">Sua compra</p>
         <p className="mt-2 text-xs leading-relaxed text-muted">
-          Acesso vitalício, pagamento único, sem renovação. Dúvidas, problema com a chave de
+          Acesso vitalício, pagamento único, sem renovação. Dúvidas, problema com o código de
           acesso ou reembolso nos primeiros {GUARANTEE_DAYS} dias:{' '}
           <a
             href={`mailto:${SUPPORT_EMAIL}`}

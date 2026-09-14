@@ -38,7 +38,7 @@ export default function Privacidade() {
             <tbody className="align-top">
               <tr className="border-b border-line/60">
                 <td className="py-2.5 pr-3 text-ink">E-mail da compra</td>
-                <td className="py-2.5 pr-3">Emitir a chave, dar suporte e processar reembolso</td>
+                <td className="py-2.5 pr-3">Emitir o código, dar suporte e processar reembolso</td>
                 <td className="py-2.5">Execução de contrato (art. 7º, V)</td>
               </tr>
               <tr className="border-b border-line/60">
@@ -102,7 +102,7 @@ export default function Privacidade() {
       <Secao titulo="5. Cookies e medição">
         <p>
           Não usamos cookies de rastreamento nem de publicidade. O armazenamento local do navegador
-          é usado para o app funcionar — guardar seu progresso, sua chave e sua preferência de
+          é usado para o app funcionar — guardar seu progresso, seu código e sua preferência de
           tema.
         </p>
         <p>

@@ -169,7 +169,7 @@ export default function Acesso() {
 
             {chave && (
               <div className="mt-5 rounded-2xl border border-brand-500/30 bg-brand-500/5 p-4">
-                <p className="text-xs uppercase tracking-wider text-muted">Sua chave de acesso</p>
+                <p className="text-xs uppercase tracking-wider text-muted">Seu código de compra</p>
                 <p className="mt-1.5 select-all font-mono text-lg font-semibold tracking-wide text-ink">
                   {chave}
                 </p>
@@ -180,7 +180,7 @@ export default function Acesso() {
                     void navigator.clipboard?.writeText(chave).then(() => setCopiado(true))
                   }}
                 >
-                  {copiado ? 'Copiada!' : 'Copiar chave'}
+                  {copiado ? 'Copiado!' : 'Copiar código'}
                 </Button>
                 <p className="mt-3 text-xs leading-relaxed text-muted">
                   Ela destrava o app em qualquer aparelho. Também fica guardada nas Configurações,
@@ -208,7 +208,7 @@ export default function Acesso() {
             <p className="mt-3 text-sm leading-relaxed text-muted">
               {sessionId
                 ? 'Se a cobrança apareceu no seu cartão, o acesso já está garantido — pode ser só uma demora do processamento. Tente de novo em alguns instantes.'
-                : 'Esta página só funciona vindo do checkout. Se você já comprou, use sua chave de acesso na tela do app.'}
+                : 'Esta página só funciona vindo do checkout. Se você já comprou, use seu código de compra na tela do app.'}
             </p>
 
             <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-center">

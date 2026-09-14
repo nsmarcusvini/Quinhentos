@@ -43,8 +43,8 @@ export default function Termos() {
           qualquer espécie.
         </p>
         <p>
-          A compra gera uma chave de acesso pessoal. Você pode usá-la nos seus próprios aparelhos;
-          ela não pode ser revendida, compartilhada publicamente ou distribuída.
+          A compra gera um código de acesso pessoal. Você pode usá-lo nos seus próprios aparelhos;
+          ele não pode ser revendido, compartilhado publicamente ou distribuído.
         </p>
         <p>
           "Acesso vitalício" significa acesso pelo tempo em que o serviço existir, sem prazo de
@@ -66,7 +66,7 @@ export default function Termos() {
           pela operadora.
         </p>
         <p>
-          Após o reembolso, a chave de acesso é cancelada e deixa de destravar o app. Seu progresso
+          Após o reembolso, o código de acesso é cancelado e deixa de destravar o app. Seu progresso
           registrado permanece no seu aparelho e pode ser exportado.
         </p>
       </Secao>
@@ -99,7 +99,7 @@ export default function Termos() {
 
       <Secao titulo="6. Uso adequado">
         <p>
-          Você se compromete a não tentar burlar o controle de acesso, não distribuir chaves de
+          Você se compromete a não tentar burlar o controle de acesso, não distribuir códigos de
           terceiros e não usar o serviço para fins ilícitos. O descumprimento pode levar ao
           cancelamento da licença, sem reembolso quando fora do prazo do item 3.
         </p>
