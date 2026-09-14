@@ -27,9 +27,10 @@ interface PaywallProps {
  * outro, e um navegador limpo apagaria a compra junto com o progresso.
  */
 export function Paywall({ stats, revogada }: PaywallProps) {
-  const { usuario, sair } = useAuth()
+  const { usuario, sair, expirada } = useAuth()
 
   const [abrindoCheckout, setAbrindoCheckout] = useState(false)
+
   const [erroCheckout, setErroCheckout] = useState<string | null>(null)
   const [pagandoComPix, setPagandoComPix] = useState(false)
 
@@ -41,7 +42,11 @@ export function Paywall({ stats, revogada }: PaywallProps) {
       window.location.href = await criarCheckout()
     } catch (erro) {
       console.error('[Desafio 500] Falha ao abrir o checkout.', erro)
-      setErroCheckout('Não consegui abrir o pagamento agora. Tente de novo em instantes.')
+      // Sessão morta derruba o login sozinha e a tela volta ao passo 1, onde o
+      // aviso explica o que houve — aqui só sobra o caso de gateway fora.
+      if (!(erro instanceof Error && erro.message === 'nao_autenticado')) {
+        setErroCheckout('Não consegui abrir o pagamento agora. Tente de novo em instantes.')
+      }
       setAbrindoCheckout(false)
     }
   }
@@ -85,22 +90,25 @@ export function Paywall({ stats, revogada }: PaywallProps) {
         {!usuario ? (
           <>
             <p className="mt-6 text-[11px] font-semibold uppercase tracking-wider text-accent">
-              Passo 1 de 2
+              {expirada ? 'Sessão encerrada' : 'Passo 1 de 2'}
             </p>
             <h1 className="mt-1 text-2xl font-bold leading-tight tracking-tight text-ink sm:text-3xl">
-              Crie sua conta
+              {expirada ? 'Entre de novo' : 'Crie sua conta'}
             </h1>
             <p className="mt-2 text-sm leading-relaxed text-muted">
-              É a conta que guarda seu acesso e seu progresso. Com ela, entrar em qualquer aparelho
-              traz o desafio de volta — sem código, sem arquivo de backup.
+              {expirada
+                ? 'Seu acesso neste aparelho expirou. Sua compra e seu progresso continuam salvos na conta — é só entrar com o mesmo e-mail.'
+                : 'É a conta que guarda seu acesso e seu progresso. Com ela, entrar em qualquer aparelho traz o desafio de volta — sem código, sem arquivo de backup.'}
             </p>
 
             <div className="card mt-5 p-5">
-              <FormularioAuth modoInicial="cadastrar" />
+              <FormularioAuth modoInicial={expirada ? 'entrar' : 'cadastrar'} />
             </div>
 
             <p className="mt-4 text-xs leading-relaxed text-muted">
-              Só pedimos e-mail e senha. Nada de cartão nesta etapa.
+              {expirada
+                ? `Não consegue entrar? Escreva para ${SUPPORT_EMAIL} que eu resolvo na mão.`
+                : 'Só pedimos e-mail e senha. Nada de cartão nesta etapa.'}
             </p>
           </>
         ) : (

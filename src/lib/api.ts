@@ -6,6 +6,7 @@
  * que rodam com service_role e decidem o que pode sair.
  */
 
+import { descartarSessaoLocal } from './sessao'
 import { supabase } from './supabase'
 
 const BASE_URL = import.meta.env.VITE_SUPABASE_URL
@@ -37,6 +38,14 @@ async function chamar<T>(funcao: string, corpo: unknown): Promise<T> {
   const dados = (await resposta.json().catch(() => null)) as T | null
 
   if (!resposta.ok || dados === null) {
+    // 401 não é falha de rede: a sessão guardada não vale mais no servidor.
+    // Derruba o login local para a tela voltar a pedir a conta, em vez de
+    // repetir "tente de novo em instantes" para sempre.
+    if (resposta.status === 401) {
+      await descartarSessaoLocal()
+      throw new Error('nao_autenticado')
+    }
+
     const detalhe =
       dados && typeof dados === 'object' && 'erro' in dados
         ? String((dados as { erro: unknown }).erro)
