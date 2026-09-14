@@ -157,6 +157,12 @@ export const WifiOffIcon = (props: IconProps) => (
   </svg>
 )
 
+export const ShieldIcon = (props: IconProps) => (
+  <svg {...base(props)}>
+    <path d="M12 3 4 6v6c0 4.5 3.2 7.8 8 9 4.8-1.2 8-4.5 8-9V6l-8-3Z" />
+  </svg>
+)
+
 export const UserIcon = (props: IconProps) => (
   <svg {...base(props)}>
     <circle cx="12" cy="8" r="4" />

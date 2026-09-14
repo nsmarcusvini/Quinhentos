@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom'
 import { ProgressBar } from '../../components/ui/ProgressBar'
-import { ChartIcon, HistoryIcon, SettingsIcon, UserIcon } from '../../components/ui/icons'
+import { ChartIcon, HistoryIcon, SettingsIcon, ShieldIcon, UserIcon } from '../../components/ui/icons'
+import { ehAdmin } from '../../lib/admin'
 import { formatCurrency, formatPercent, pluralize } from '../../lib/format'
+import { useAuth } from '../../state/AuthContext'
 import type { ChallengeStats } from '../../state/useStats'
 import type { PanelId } from './panels'
 
@@ -11,6 +13,11 @@ interface AppHeaderProps {
   onOpenPanel: (panel: PanelId) => void
 }
 
+/** Classe compartilhada entre os botões de painel e o link do admin, para o
+    atalho não destoar dos vizinhos por um pixel de padding. */
+const ACAO_CLASS =
+  'tap-target inline-flex items-center justify-center rounded-xl text-muted transition-colors duration-150 hover:bg-surface-2 hover:text-ink'
+
 const ACTIONS: readonly { id: PanelId; label: string; Icon: typeof ChartIcon }[] = [
   { id: 'stats', label: 'Estatísticas', Icon: ChartIcon },
   { id: 'history', label: 'Histórico', Icon: HistoryIcon },
@@ -19,6 +26,8 @@ const ACTIONS: readonly { id: PanelId; label: string; Icon: typeof ChartIcon }[]
 ]
 
 export function AppHeader({ challengeName, stats, onOpenPanel }: AppHeaderProps) {
+  const { usuario } = useAuth()
+
   return (
     <header className="sticky top-0 z-30 border-b border-line bg-bg/85 backdrop-blur-md">
       <div className="mx-auto w-full max-w-5xl px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
@@ -34,6 +43,19 @@ export function AppHeader({ challengeName, stats, onOpenPanel }: AppHeaderProps)
           </div>
 
           <nav aria-label="Painéis do desafio" className="flex shrink-0 gap-0.5">
+            {/* Só aparece para quem administra — e é só o atalho: /admin
+                responde 403 para qualquer outra conta, com ou sem este ícone. */}
+            {ehAdmin(usuario?.id) && (
+              <Link
+                to="/admin"
+                aria-label="Painel do dono"
+                title="Painel do dono"
+                className={ACAO_CLASS}
+              >
+                <ShieldIcon />
+              </Link>
+            )}
+
             {ACTIONS.map(({ id, label, Icon }) => (
               <button
                 key={id}
@@ -41,7 +63,7 @@ export function AppHeader({ challengeName, stats, onOpenPanel }: AppHeaderProps)
                 onClick={() => onOpenPanel(id)}
                 aria-label={label}
                 title={label}
-                className="tap-target inline-flex items-center justify-center rounded-xl text-muted transition-colors duration-150 hover:bg-surface-2 hover:text-ink"
+                className={ACAO_CLASS}
               >
                 <Icon />
               </button>

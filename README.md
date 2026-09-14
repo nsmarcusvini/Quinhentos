@@ -182,9 +182,9 @@ scripts/        geração dos ícones do PWA a partir de SVG (npm exec node scri
 aquisição, receita, funil de conversão, mix de pagamento, uso do produto, retenção por coorte e
 saúde da carteira. Tem exportação em CSV nas abas de usuários e pagamentos.
 
-**Como chegar lá.** Entre com a conta de administrador e abra `/app` →
-**Configurações** → **Abrir o painel**. O atalho só aparece para quem administra. Digitar `/admin`
-na barra de endereço dá no mesmo — o atalho é conveniência, não segurança.
+**Como chegar lá.** Entre com a conta de administrador e abra `/app`: o ícone de escudo aparece
+no cabeçalho, à esquerda do de estatísticas. Digitar `/admin` na barra de endereço dá no mesmo — o
+atalho é conveniência, não segurança, e só aparece para quem administra.
 
 **Quem entra.** O portão é a Edge Function [`admin-dados`](supabase/functions/admin-dados/index.ts),
 não a tela: ela valida o JWT e compara o **ID do usuário** com a lista de administradores. A

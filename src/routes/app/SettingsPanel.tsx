@@ -1,5 +1,4 @@
 import { useId, useRef, useState, type ReactNode } from 'react'
-import { Link } from 'react-router-dom'
 import { Button } from '../../components/ui/Button'
 import { Modal } from '../../components/ui/Modal'
 import { useToast } from '../../components/ui/Toast'
@@ -11,12 +10,10 @@ import {
   TrashIcon,
   UploadIcon,
 } from '../../components/ui/icons'
-import { ehAdmin } from '../../lib/admin'
 import { cn } from '../../lib/cn'
 import { backupFilename, downloadJson } from '../../lib/download'
 import { formatInteger, pluralize } from '../../lib/format'
 import { GUARANTEE_DAYS, SUPPORT_EMAIL } from '../../lib/pricing'
-import { useAuth } from '../../state/AuthContext'
 import { useChallenge } from '../../state/ChallengeContext'
 import { useEntitlement } from '../../state/EntitlementContext'
 import { parseBackup } from '../../state/storage'
@@ -54,7 +51,6 @@ const inputClass =
 export function SettingsPanel() {
   const { state, rename, setTargetDate, setTheme, replaceState, reset } = useChallenge()
   const { license } = useEntitlement()
-  const { usuario } = useAuth()
   const showToast = useToast()
   const [chaveCopiada, setChaveCopiada] = useState(false)
 
@@ -243,21 +239,6 @@ export function SettingsPanel() {
           .
         </p>
       </div>
-
-      {/* O atalho só aparece para quem administra, mas quem barra o resto é o
-          servidor: /admin responde 403 para qualquer outra conta. */}
-      {ehAdmin(usuario?.id) && (
-        <div className="border-t border-line pt-5">
-          <Field label="Painel do dono" hint="Usuários, pagamentos e analytics do negócio.">
-            <Link
-              to="/admin"
-              className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-line bg-surface-2 px-4 text-sm text-ink transition-colors duration-150 hover:border-brand-500/60 hover:bg-surface"
-            >
-              Abrir o painel
-            </Link>
-          </Field>
-        </div>
-      )}
 
       {/* --- diálogos ------------------------------------------------------ */}
 
