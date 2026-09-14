@@ -6,6 +6,7 @@
  * que rodam com service_role e decidem o que pode sair.
  */
 
+import type { PlanoId } from './pricing'
 import { descartarSessaoLocal } from './sessao'
 import { supabase } from './supabase'
 
@@ -14,7 +15,11 @@ const ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
 
 export const apiConfigurada = (): boolean => Boolean(BASE_URL && ANON_KEY)
 
-async function chamar<T>(funcao: string, corpo: unknown): Promise<T> {
+/**
+ * Exportada porque o painel de admin ([`admin.ts`](admin.ts)) fala com a
+ * mesma malha de Edge Functions e precisa do mesmo tratamento de 401.
+ */
+export async function chamar<T>(funcao: string, corpo: unknown): Promise<T> {
   if (!apiConfigurada()) {
     throw new Error('VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY não estão definidas.')
   }
@@ -56,9 +61,23 @@ async function chamar<T>(funcao: string, corpo: unknown): Promise<T> {
   return dados
 }
 
-/** Abre o Checkout do Stripe. Devolve a URL para onde redirecionar. */
-export async function criarCheckout(): Promise<string> {
-  const { url } = await chamar<{ url: string }>('criar-checkout', {})
+/**
+ * Abre o Checkout do Stripe. Devolve a URL para onde redirecionar.
+ *
+ * Manda o PLANO, nunca o preço: quem traduz plano em valor é a função no
+ * servidor, com os ids de preço que só ela conhece.
+ */
+export async function criarCheckout(plano: PlanoId): Promise<string> {
+  const { url } = await chamar<{ url: string }>('criar-checkout', { plano })
+  return url
+}
+
+/**
+ * Abre o portal de cobrança do Stripe — trocar cartão, ver faturas, cancelar.
+ * Só existe para quem assina o mensal.
+ */
+export async function abrirPortal(): Promise<string> {
+  const { url } = await chamar<{ url: string }>('criar-portal', {})
   return url
 }
 
@@ -99,7 +118,13 @@ export async function vincularLicenca(key: string): Promise<void> {
 }
 
 /** Por que o servidor recusou uma chave. */
-export type MotivoRecusa = 'formato' | 'inexistente' | 'revogada' | 'indisponivel'
+export type MotivoRecusa =
+  | 'formato'
+  | 'inexistente'
+  | 'revogada'
+  /** Assinatura cujo período acabou sem renovar. */
+  | 'expirada'
+  | 'indisponivel'
 
 export interface ResultadoValidacao {
   valida: boolean

@@ -51,7 +51,7 @@ Deno.serve(async (req: Request) => {
   const supabase = createClient(supabaseUrl, serviceRole)
   const { data, error } = await supabase
     .from('licenses')
-    .select('key, revoked_at')
+    .select('key, revoked_at, plan, current_period_end')
     .eq('key', normalizada)
     .maybeSingle()
 
@@ -66,10 +66,16 @@ Deno.serve(async (req: Request) => {
   // deixa de destravar. O motivo vai separado para a tela explicar direito.
   if (data.revoked_at) return json({ valida: false, motivo: 'revogada' }, 200)
 
+  // Assinatura cujo período acabou sem renovar. Nulo é o vitalício, que não
+  // expira nunca — por isso a comparação só acontece quando há data.
+  if (data.current_period_end && new Date(data.current_period_end).getTime() <= Date.now()) {
+    return json({ valida: false, motivo: 'expirada' }, 200)
+  }
+
   await supabase
     .from('licenses')
     .update({ last_seen_at: new Date().toISOString() })
     .eq('key', normalizada)
 
-  return json({ valida: true })
+  return json({ valida: true, plano: data.plan, expiraEm: data.current_period_end })
 })

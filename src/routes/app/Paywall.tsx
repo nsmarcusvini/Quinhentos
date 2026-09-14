@@ -6,7 +6,15 @@ import { trackEvent } from '../../lib/analytics'
 import { criarCheckout } from '../../lib/api'
 import { cn } from '../../lib/cn'
 import { formatCurrency, formatCurrencyCompact } from '../../lib/format'
-import { GUARANTEE_DAYS, PRICE_BRL, SUPPORT_EMAIL } from '../../lib/pricing'
+import {
+  GUARANTEE_DAYS,
+  MESES_ATE_EMPATAR,
+  PLANOS,
+  PLANO_MENSAL,
+  PLANO_VITALICIO,
+  SUPPORT_EMAIL,
+  type PlanoId,
+} from '../../lib/pricing'
 import { HOUSE_COUNT, TOTAL_AMOUNT } from '../../lib/constants'
 import { useAuth } from '../../state/AuthContext'
 import type { ChallengeStats } from '../../state/useStats'
@@ -30,21 +38,30 @@ export function Paywall({ stats, revogada }: PaywallProps) {
   const { usuario, sair, expirada } = useAuth()
 
   const [abrindoCheckout, setAbrindoCheckout] = useState(false)
+  // Vitalício por padrão: é a oferta melhor para quem fica, e quem quiser o
+  // mensal muda com um toque. Escolher por ninguém seria pior — uma tela sem
+  // opção marcada faz a pessoa parar para decidir antes de querer decidir.
+  const [plano, setPlano] = useState<PlanoId>('vitalicio')
 
   const [erroCheckout, setErroCheckout] = useState<string | null>(null)
   const [pagandoComPix, setPagandoComPix] = useState(false)
 
+  const escolhido = plano === 'mensal' ? PLANO_MENSAL : PLANO_VITALICIO
+
   const comprar = async () => {
     setAbrindoCheckout(true)
     setErroCheckout(null)
-    trackEvent('checkout_start', { price: PRICE_BRL, metodo: 'cartao' })
+    trackEvent('checkout_start', { price: escolhido.preco, metodo: 'cartao', plano })
     try {
-      window.location.href = await criarCheckout()
+      window.location.href = await criarCheckout(plano)
     } catch (erro) {
       console.error('[Desafio 500] Falha ao abrir o checkout.', erro)
       // Sessão morta derruba o login sozinha e a tela volta ao passo 1, onde o
-      // aviso explica o que houve — aqui só sobra o caso de gateway fora.
-      if (!(erro instanceof Error && erro.message === 'nao_autenticado')) {
+      // aviso explica o que houve — aqui sobram o gateway fora e o mensal que
+      // ainda não foi criado no painel do Stripe.
+      if (erro instanceof Error && erro.message === 'plano_indisponivel') {
+        setErroCheckout('O plano mensal ainda não está disponível. Use o vitalício por enquanto.')
+      } else if (!(erro instanceof Error && erro.message === 'nao_autenticado')) {
         setErroCheckout('Não consegui abrir o pagamento agora. Tente de novo em instantes.')
       }
       setAbrindoCheckout(false)
@@ -121,8 +138,8 @@ export function Paywall({ stats, revogada }: PaywallProps) {
               Destrave as {HOUSE_COUNT} casinhas
             </h1>
             <p className="mt-2 text-sm leading-relaxed text-muted">
-              Acesso completo ao desafio de {formatCurrencyCompact(TOTAL_AMOUNT)}, com estatísticas,
-              histórico, sorteio e uso offline.
+              Acesso completo ao desafio de {formatCurrencyCompact(TOTAL_AMOUNT)}. O app é o mesmo
+              nos dois planos — muda só como você paga.
             </p>
 
             <p className="mt-2 break-all text-xs text-muted">
@@ -141,71 +158,119 @@ export function Paywall({ stats, revogada }: PaywallProps) {
                 <PagarComPix onFechar={() => setPagandoComPix(false)} />
               </div>
             ) : (
-              <div className="card mt-6 p-5">
-                <p className="num text-4xl font-bold leading-none text-ink">
-                  {formatCurrency(PRICE_BRL)}
-                </p>
-                <p className="mt-1.5 text-sm font-medium text-ink">
-                  Pagamento único · acesso vitalício
-                </p>
+              <>
+                <div
+                  role="radiogroup"
+                  aria-label="Escolha o plano"
+                  className="mt-6 grid gap-3 sm:grid-cols-2"
+                >
+                  {PLANOS.map((opcao) => {
+                    const ativo = opcao.id === plano
+                    return (
+                      <button
+                        key={opcao.id}
+                        type="button"
+                        role="radio"
+                        aria-checked={ativo}
+                        onClick={() => setPlano(opcao.id)}
+                        className={cn(
+                          'rounded-2xl border p-4 text-left transition-colors duration-150',
+                          ativo
+                            ? 'border-brand-500 bg-brand-500/10'
+                            : 'border-line bg-surface hover:border-brand-500/50',
+                        )}
+                      >
+                        <span className="text-xs font-semibold uppercase tracking-wider text-accent">
+                          {opcao.nome}
+                        </span>
+                        <span className="num mt-1 block text-2xl font-bold leading-none text-ink">
+                          {formatCurrency(opcao.preco)}
+                        </span>
+                        <span className="mt-1 block text-xs text-muted">{opcao.sufixo}</span>
+                        <span className="mt-2 block text-xs leading-relaxed text-muted">
+                          {opcao.metodos} · {opcao.seguranca}
+                        </span>
+                      </button>
+                    )
+                  })}
+                </div>
 
-                <div className="mt-4 space-y-1.5">
-                  {[
-                    'Pix libera na hora, sem sair do app',
-                    `${GUARANTEE_DAYS} dias de garantia`,
-                    'Sem mensalidade e sem renovação',
-                    'Funciona offline depois de instalado',
-                  ].map((item) => (
-                    <p key={item} className="flex items-center gap-2 text-sm text-muted">
-                      <CheckIcon
-                        width={15}
-                        height={15}
-                        strokeWidth={3}
-                        className="shrink-0 text-accent"
-                      />
-                      {item}
+                <div className="card mt-4 p-5">
+                  <div className="space-y-1.5">
+                    {[
+                      `As ${HOUSE_COUNT} casinhas, estatísticas, histórico e sorteio`,
+                      'Progresso salvo na conta, em qualquer aparelho',
+                      'Funciona offline depois de instalado',
+                      plano === 'mensal'
+                        ? 'Cancele sozinho no app, sem falar com ninguém'
+                        : `${GUARANTEE_DAYS} dias de garantia, sem justificar`,
+                    ].map((item) => (
+                      <p key={item} className="flex items-start gap-2 text-sm text-muted">
+                        <CheckIcon
+                          width={15}
+                          height={15}
+                          strokeWidth={3}
+                          className="mt-0.5 shrink-0 text-accent"
+                        />
+                        {item}
+                      </p>
+                    ))}
+                  </div>
+
+                  <button
+                    type="button"
+                    disabled={abrindoCheckout}
+                    onClick={() => void comprar()}
+                    className={cn(
+                      'mt-5 inline-flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl',
+                      'bg-brand-500 font-semibold text-[#06210F] shadow-glow',
+                      'transition-[background-color,transform] duration-150 hover:bg-brand-400 active:scale-[0.98]',
+                      'disabled:cursor-not-allowed disabled:opacity-60',
+                    )}
+                  >
+                    {abrindoCheckout
+                      ? 'Abrindo pagamento…'
+                      : plano === 'mensal'
+                        ? `Assinar no cartão — ${formatCurrency(escolhido.preco)}/mês`
+                        : `Pagar com cartão — ${formatCurrency(escolhido.preco)}`}
+                    {!abrindoCheckout && <ArrowRightIcon width={18} height={18} />}
+                  </button>
+                  {erroCheckout && (
+                    <p role="alert" className="mt-2 text-center text-xs text-danger">
+                      {erroCheckout}
                     </p>
-                  ))}
-                </div>
-
-                <button
-                  type="button"
-                  disabled={abrindoCheckout}
-                  onClick={() => void comprar()}
-                  className={cn(
-                    'mt-5 inline-flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl',
-                    'bg-brand-500 font-semibold text-[#06210F] shadow-glow',
-                    'transition-[background-color,transform] duration-150 hover:bg-brand-400 active:scale-[0.98]',
-                    'disabled:cursor-not-allowed disabled:opacity-60',
                   )}
-                >
-                  {abrindoCheckout
-                    ? 'Abrindo pagamento…'
-                    : `Pagar com cartão — ${formatCurrency(PRICE_BRL)}`}
-                  {!abrindoCheckout && <ArrowRightIcon width={18} height={18} />}
-                </button>
-                {erroCheckout && (
-                  <p role="alert" className="mt-2 text-center text-xs text-danger">
-                    {erroCheckout}
-                  </p>
-                )}
 
-                <div className="mt-3 flex items-center gap-3">
-                  <span className="h-px flex-1 bg-line" />
-                  <span className="text-xs uppercase tracking-wider text-muted">ou</span>
-                  <span className="h-px flex-1 bg-line" />
+                  {plano === 'vitalicio' ? (
+                    <>
+                      <div className="mt-3 flex items-center gap-3">
+                        <span className="h-px flex-1 bg-line" />
+                        <span className="text-xs uppercase tracking-wider text-muted">ou</span>
+                        <span className="h-px flex-1 bg-line" />
+                      </div>
+
+                      <Button
+                        variant="secondary"
+                        fullWidth
+                        className="mt-3"
+                        onClick={() => setPagandoComPix(true)}
+                      >
+                        Pagar com Pix
+                      </Button>
+                      <p className="mt-1.5 text-center text-xs text-muted">
+                        Cai na hora, sem sair do app
+                      </p>
+                    </>
+                  ) : (
+                    /* Dizer POR QUE não tem Pix evita a pessoa procurar, não
+                       achar e sair achando que o site está quebrado. */
+                    <p className="mt-3 text-center text-xs leading-relaxed text-muted">
+                      O mensal é só no cartão de crédito: Pix não faz cobrança recorrente. A
+                      partir do {MESES_ATE_EMPATAR}º mês o vitalício sai mais barato.
+                    </p>
+                  )}
                 </div>
-
-                <Button
-                  variant="secondary"
-                  fullWidth
-                  className="mt-3"
-                  onClick={() => setPagandoComPix(true)}
-                >
-                  Pagar com Pix
-                </Button>
-                <p className="mt-1.5 text-center text-xs text-muted">Cai na hora, sem sair do app</p>
-              </div>
+              </>
             )}
           </>
         )}

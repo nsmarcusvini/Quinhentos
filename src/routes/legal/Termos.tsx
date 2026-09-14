@@ -1,5 +1,5 @@
 import { formatCurrency } from '../../lib/format'
-import { GUARANTEE_DAYS, PRICE_BRL, SUPPORT_EMAIL } from '../../lib/pricing'
+import { GUARANTEE_DAYS, PLANO_MENSAL, PLANO_VITALICIO, SUPPORT_EMAIL } from '../../lib/pricing'
 import { TOTAL_AMOUNT } from '../../lib/constants'
 import { DocumentoLegal, Destaque, Secao } from './DocumentoLegal'
 
@@ -38,9 +38,24 @@ export default function Termos() {
 
       <Secao titulo="2. Preço e acesso">
         <p>
-          O acesso custa {formatCurrency(PRICE_BRL)} em <strong className="text-ink">pagamento
-          único</strong>. Não há mensalidade, renovação automática nem cobrança posterior de
-          qualquer espécie.
+          Existem dois planos, com o mesmo produto em ambos:
+        </p>
+        <ul className="list-disc space-y-2 pl-5">
+          <li>
+            <strong className="text-ink">Mensal</strong> — {formatCurrency(PLANO_MENSAL.preco)} por
+            mês, cobrados no cartão de crédito de forma recorrente até você cancelar. A renovação é
+            automática e o valor é debitado a cada período de 30 dias. O cancelamento pode ser feito
+            a qualquer momento, por você mesmo, dentro do app, e evita a cobrança seguinte.
+          </li>
+          <li>
+            <strong className="text-ink">Vitalício</strong> —{' '}
+            {formatCurrency(PLANO_VITALICIO.preco)} em pagamento único, no Pix ou no cartão. Não há
+            renovação nem cobrança posterior de qualquer espécie.
+          </li>
+        </ul>
+        <p>
+          O plano mensal é aceito apenas no cartão de crédito, por limitação técnica do Pix, que não
+          realiza cobrança recorrente.
         </p>
         <p>
           A compra gera um código de acesso pessoal. Você pode usá-lo nos seus próprios aparelhos;
@@ -52,21 +67,31 @@ export default function Termos() {
           antecedência razoável e o app continuará funcionando localmente no aparelho em que
           estiver instalado, com seus dados exportáveis.
         </p>
+        <p>
+          No plano mensal, o acesso vale até o fim do período já pago. Ao cancelar, você continua
+          com acesso até essa data e não há nova cobrança. Se o pagamento falhar e não for
+          regularizado, o acesso termina ao fim do período pago.
+        </p>
       </Secao>
 
       <Secao titulo="3. Direito de arrependimento e reembolso">
         <Destaque>
-          Você tem {GUARANTEE_DAYS} dias corridos, contados da compra, para desistir e receber o
-          valor integral de volta — é o direito de arrependimento do artigo 49 do Código de Defesa
-          do Consumidor.
+          Você tem {GUARANTEE_DAYS} dias corridos, contados da contratação, para desistir e receber
+          o valor integral de volta — é o direito de arrependimento do artigo 49 do Código de Defesa
+          do Consumidor. Vale para os dois planos.
         </Destaque>
+        <p>
+          No plano mensal, além desse direito, você pode cancelar quando quiser pelo próprio app,
+          sem contato com o suporte. O cancelamento interrompe as cobranças futuras; o período já
+          pago segue válido até o fim.
+        </p>
         <p>
           Para exercer, escreva para {SUPPORT_EMAIL} informando o e-mail usado na compra. Não
           pedimos justificativa. O estorno é feito pelo mesmo meio de pagamento, no prazo praticado
           pela operadora.
         </p>
         <p>
-          Após o reembolso, o código de acesso é cancelado e deixa de destravar o app. Seu progresso
+          Após o reembolso, o acesso é cancelado e deixa de destravar o app. Seu progresso
           registrado permanece no seu aparelho e pode ser exportado.
         </p>
       </Secao>

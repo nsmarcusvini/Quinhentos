@@ -226,8 +226,10 @@ export function SettingsPanel() {
       <div className="border-t border-line pt-5">
         <p className="text-xs uppercase tracking-wider text-muted">Sua compra</p>
         <p className="mt-2 text-xs leading-relaxed text-muted">
-          Acesso vitalício, pagamento único, sem renovação. Dúvidas, problema com o código de
-          acesso ou reembolso nos primeiros {GUARANTEE_DAYS} dias:{' '}
+          {license?.plan === 'mensal'
+            ? 'Assinatura mensal — cancele quando quiser em Minha conta.'
+            : 'Acesso vitalício, pagamento único, sem renovação.'}{' '}
+          Dúvidas ou reembolso nos primeiros {GUARANTEE_DAYS} dias:{' '}
           <a
             href={`mailto:${SUPPORT_EMAIL}`}
             className="text-ink underline underline-offset-2 transition-colors duration-150 hover:text-accent"

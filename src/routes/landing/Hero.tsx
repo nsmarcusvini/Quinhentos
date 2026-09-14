@@ -4,7 +4,7 @@ import { useCountUp } from '../../hooks/useCountUp'
 import { trackEvent } from '../../lib/analytics'
 import { HOUSE_COUNT, TOTAL_AMOUNT } from '../../lib/constants'
 import { formatCurrency, formatCurrencyCompact, pluralize } from '../../lib/format'
-import { GUARANTEE_DAYS, PRICE_BRL } from '../../lib/pricing'
+import { PLANO_MENSAL, PLANO_VITALICIO } from '../../lib/pricing'
 import { useChallenge } from '../../state/ChallengeContext'
 import type { ChallengeStats } from '../../state/useStats'
 import { CtaButton } from './CtaButton'
@@ -57,7 +57,7 @@ export function Hero({ stats }: { stats: ChallengeStats }) {
 
       <div className="relative mx-auto w-full max-w-3xl">
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-accent">
-          Pagamento único · {GUARANTEE_DAYS} dias de garantia
+          Dois planos · cancele ou peça reembolso quando quiser
         </p>
 
         {/* Dor primeiro. O mecanismo vem no parágrafo seguinte. */}
@@ -72,7 +72,7 @@ export function Hero({ stats }: { stats: ChallengeStats }) {
           <span className="num font-semibold text-ink">
             {formatCurrencyCompact(TOTAL_AMOUNT)}
           </span>
-          . Sem banco, sem mensalidade, sem cobrança recorrente.
+          . Sem conexão com banco, sem anúncio e sem vender seus dados.
         </p>
 
         {/* A oferta aparece antes da rolagem. A demo é a razão de rolar. */}
@@ -108,8 +108,14 @@ export function Hero({ stats }: { stats: ChallengeStats }) {
         </div>
 
         <p className="mt-6 text-sm text-muted">
-          <span className="num font-semibold text-ink">{formatCurrency(PRICE_BRL)}</span> uma vez,
-          no Pix ou no cartão. Não existe plano mensal, renovação nem cobrança surpresa.
+          <span className="num font-semibold text-ink">
+            {formatCurrency(PLANO_MENSAL.preco)}
+          </span>{' '}
+          por mês no cartão, ou{' '}
+          <span className="num font-semibold text-ink">
+            {formatCurrency(PLANO_VITALICIO.preco)}
+          </span>{' '}
+          uma vez no Pix ou no cartão e o acesso é seu para sempre.
         </p>
       </div>
     </section>

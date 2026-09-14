@@ -55,8 +55,8 @@ export default function LandingPage() {
 
       <footer className="border-t border-line px-4 py-8 text-center text-xs text-muted">
         <p className="mx-auto max-w-md leading-relaxed">
-          Desafio 500 — pagamento único, sem mensalidade. O progresso do seu desafio fica salvo no
-          seu aparelho.
+          Desafio 500 — mensal ou pagamento único, você escolhe. Seu progresso fica no aparelho e
+          na sua conta, para voltar em qualquer celular.
         </p>
         <nav aria-label="Documentos" className="mt-4 flex justify-center gap-5">
           <Link to="/termos" className="underline underline-offset-2 hover:text-ink">

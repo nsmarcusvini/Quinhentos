@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { ArrowRightIcon } from '../../components/ui/icons'
 import { cn } from '../../lib/cn'
 import { formatCurrency } from '../../lib/format'
-import { CHECKOUT_HREF, GUARANTEE_DAYS, PRICE_BRL } from '../../lib/pricing'
+import { CHECKOUT_HREF, PLANO_MENSAL, PLANO_VITALICIO } from '../../lib/pricing'
 import { trackEvent } from '../../lib/analytics'
 
 interface CtaButtonProps {
@@ -18,8 +18,12 @@ interface CtaButtonProps {
 }
 
 /**
- * Único destino da landing. O preço vai dentro do botão de propósito: esconder
- * o valor até o checkout aumenta o clique e derruba a conversão final.
+ * Único destino da landing.
+ *
+ * O preço continua visível no botão, porque esconder o valor até o checkout
+ * aumenta o clique e derruba a conversão final. Com duas ofertas ele vira "a
+ * partir de" — e a linha logo abaixo diz as duas por extenso, para o "a partir
+ * de" não virar a meia-verdade de sempre.
  */
 export function CtaButton({
   position,
@@ -43,13 +47,15 @@ export function CtaButton({
           fullWidth && 'w-full',
         )}
       >
-        {started ? 'Destravar meu desafio' : 'Quero meu acesso'} — {formatCurrency(PRICE_BRL)}
+        {started ? 'Destravar meu desafio' : 'Quero meu acesso'} — a partir de{' '}
+        {formatCurrency(PLANO_MENSAL.preco)}
         <ArrowRightIcon width={18} height={18} />
       </Link>
 
       {reassurance && (
         <p className={cn('mt-2 text-xs text-muted', fullWidth && 'text-center')}>
-          Pix ou cartão · pagamento único · {GUARANTEE_DAYS} dias de garantia
+          {formatCurrency(PLANO_MENSAL.preco)} por mês, cancele quando quiser · ou{' '}
+          {formatCurrency(PLANO_VITALICIO.preco)} uma vez e é seu para sempre
         </p>
       )}
     </div>

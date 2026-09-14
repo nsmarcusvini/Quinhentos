@@ -2,11 +2,72 @@ import { useEffect, useRef } from 'react'
 import { Reveal } from '../../components/Reveal'
 import { CheckIcon, WifiOffIcon } from '../../components/ui/icons'
 import { trackOnce } from '../../lib/analytics'
+import { cn } from '../../lib/cn'
 import { HOUSE_COUNT, TOTAL_AMOUNT } from '../../lib/constants'
 import { formatCurrency, formatCurrencyCompact } from '../../lib/format'
-import { GUARANTEE_DAYS, MONTHLY_ANCHOR_BRL, PRICE_BRL } from '../../lib/pricing'
+import {
+  GUARANTEE_DAYS,
+  MESES_ATE_EMPATAR,
+  MONTHLY_ANCHOR_BRL,
+  PLANO_MENSAL,
+  PLANO_VITALICIO,
+  type Plano,
+} from '../../lib/pricing'
 import type { ChallengeStats } from '../../state/useStats'
 import { CtaButton } from './CtaButton'
+
+/** O que vem nos dois planos. É o mesmo produto; só muda como se paga. */
+const INCLUSO = [
+  `As ${HOUSE_COUNT} casinhas, estatísticas, histórico e sorteio`,
+  'Progresso salvo na conta — entra em qualquer aparelho',
+  'Sem anúncio e sem conexão com o seu banco',
+  'Funciona offline depois de instalado',
+]
+
+function CartaoPlano({ plano, destaque }: { plano: Plano; destaque?: boolean }) {
+  return (
+    <div
+      className={cn(
+        'flex flex-col rounded-3xl border p-6',
+        destaque
+          ? 'border-brand-500/50 bg-gradient-to-b from-brand-500/12 to-transparent'
+          : 'border-line bg-surface',
+      )}
+    >
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-accent">
+          {plano.nome}
+        </p>
+        {/* "Mais escolhido" seria mentira: o produto acabou de nascer e não
+            tem escolha de ninguém para contar. "Sai mais barato" é aritmética,
+            e a linha logo abaixo mostra a conta. */}
+        {destaque && (
+          <span className="rounded-full bg-brand-500/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-accent">
+            Sai mais barato
+          </span>
+        )}
+      </div>
+
+      <p className="num mt-3 text-4xl font-bold leading-none text-ink">
+        {formatCurrency(plano.preco)}
+      </p>
+      <p className="mt-1 text-sm text-muted">{plano.sufixo}</p>
+
+      <p className="mt-3 text-sm font-medium text-ink">{plano.resumo}</p>
+
+      <div className="mt-4 space-y-1.5 border-t border-line pt-4">
+        <p className="flex items-center gap-2 text-sm text-muted">
+          <CheckIcon width={15} height={15} strokeWidth={3} className="shrink-0 text-accent" />
+          {plano.metodos}
+        </p>
+        <p className="flex items-center gap-2 text-sm text-muted">
+          <CheckIcon width={15} height={15} strokeWidth={3} className="shrink-0 text-accent" />
+          {plano.seguranca}
+        </p>
+      </div>
+    </div>
+  )
+}
 
 export function PriceBlock({ stats }: { stats: ChallengeStats }) {
   const sectionRef = useRef<HTMLElement>(null)
@@ -32,36 +93,30 @@ export function PriceBlock({ stats }: { stats: ChallengeStats }) {
     <section ref={sectionRef} className="px-4 py-12 sm:py-16">
       <div className="mx-auto w-full max-w-2xl">
         <Reveal>
-          <div className="overflow-hidden rounded-3xl border border-brand-500/30 bg-gradient-to-b from-brand-500/12 to-transparent p-6 text-center sm:p-9">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
-              Acesso completo
-            </p>
+          <h2 className="text-center text-2xl font-bold tracking-tight text-ink sm:text-3xl">
+            Escolha como pagar
+          </h2>
+          <p className="mx-auto mt-3 max-w-md text-center text-sm leading-relaxed text-muted">
+            É o mesmo app nos dois. A diferença é só se você prefere começar barato ou resolver de
+            uma vez.
+          </p>
 
-            <p className="num mt-4 text-5xl font-bold leading-none text-ink sm:text-6xl">
-              {formatCurrency(PRICE_BRL)}
-            </p>
-            <p className="mt-2 text-sm font-medium text-ink">
-              Pagamento único · acesso vitalício
-            </p>
+          <div className="mt-6 grid gap-4 sm:grid-cols-2">
+            <CartaoPlano plano={PLANO_MENSAL} />
+            <CartaoPlano plano={PLANO_VITALICIO} destaque />
+          </div>
 
-            <p className="mx-auto mt-4 max-w-sm text-sm leading-relaxed text-muted">
-              Apps de controle financeiro no Brasil custam de {formatCurrencyCompact(12.9)} a{' '}
-              {formatCurrencyCompact(MONTHLY_ANCHOR_BRL)} <strong>por mês</strong> — mais de{' '}
-              {formatCurrencyCompact(yearlyAnchor)} em um ano. Aqui você paga uma vez e acabou.
-            </p>
+          {/* A conta que a pessoa faria de cabeça — feita para ela, e certa. */}
+          <p className="mt-4 text-center text-sm leading-relaxed text-muted">
+            A partir do {MESES_ATE_EMPATAR}º mês o vitalício sai mais barato que a assinatura. E
+            juntar {formatCurrencyCompact(TOTAL_AMOUNT)} leva bem mais que {MESES_ATE_EMPATAR}{' '}
+            meses.
+          </p>
 
-            <div className="mt-7">
-              <CtaButton position="price_block" saved={stats.saved} fullWidth />
-            </div>
-
-            <div className="mt-6 flex flex-col gap-2 text-left sm:mx-auto sm:max-w-sm">
-              {[
-                'Pix ou cartão — no Pix o acesso libera na hora',
-                `${GUARANTEE_DAYS} dias de garantia — não gostou, devolvo o valor`,
-                'Sem mensalidade, sem renovação automática',
-                'Sem anúncio e sem conexão com o seu banco',
-                'Funciona offline depois de instalado',
-              ].map((item) => (
+          <div className="card mt-6 p-5">
+            <p className="text-sm font-semibold text-ink">Os dois incluem</p>
+            <div className="mt-3 flex flex-col gap-2">
+              {INCLUSO.map((item) => (
                 <p key={item} className="flex items-start gap-2 text-sm text-muted">
                   <CheckIcon
                     width={16}
@@ -74,6 +129,16 @@ export function PriceBlock({ stats }: { stats: ChallengeStats }) {
               ))}
             </div>
           </div>
+
+          <div className="mt-6">
+            <CtaButton position="price_block" saved={stats.saved} fullWidth />
+          </div>
+
+          <p className="mx-auto mt-4 max-w-sm text-center text-sm leading-relaxed text-muted">
+            Apps de controle financeiro no Brasil custam de {formatCurrencyCompact(12.9)} a{' '}
+            {formatCurrencyCompact(MONTHLY_ANCHOR_BRL)} <strong>por mês</strong> — mais de{' '}
+            {formatCurrencyCompact(yearlyAnchor)} em um ano, todo ano.
+          </p>
         </Reveal>
 
         {/* Transparência no lugar de prova social que não existe. */}
@@ -105,10 +170,9 @@ export function PriceBlock({ stats }: { stats: ChallengeStats }) {
                 continua salvo.
               </li>
               <li>
-                <strong className="font-semibold text-ink">
-                  {GUARANTEE_DAYS} dias de garantia.
-                </strong>{' '}
-                Se não for para você, peça o dinheiro de volta. O risco é meu, não seu.
+                <strong className="font-semibold text-ink">Saída fácil dos dois lados.</strong> No
+                mensal você cancela sozinho, em dois cliques, sem falar com ninguém. No vitalício
+                são {GUARANTEE_DAYS} dias para pedir o dinheiro de volta.
               </li>
             </ul>
           </div>

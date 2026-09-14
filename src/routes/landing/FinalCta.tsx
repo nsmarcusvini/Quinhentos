@@ -27,7 +27,8 @@ export function FinalCta({ stats }: { stats: ChallengeStats }) {
 
         <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-muted sm:text-base">
           {HOUSE_COUNT} casinhas, {formatCurrencyCompact(TOTAL_AMOUNT)} no fim da linha e{' '}
-          {GUARANTEE_DAYS} dias para desistir sem perder nada.
+          No mensal, cancele quando quiser. No vitalício, {GUARANTEE_DAYS} dias para desistir
+          sem perder nada.
         </p>
 
         <div className="mt-7 flex justify-center">

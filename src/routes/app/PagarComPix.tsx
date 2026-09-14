@@ -5,7 +5,7 @@ import { trackEvent } from '../../lib/analytics'
 import { conferirPix, criarPix, type CobrancaPix } from '../../lib/api'
 import { useEntitlement } from '../../state/EntitlementContext'
 import { formatCurrency } from '../../lib/format'
-import { PRICE_BRL, SUPPORT_EMAIL } from '../../lib/pricing'
+import { PLANO_VITALICIO, SUPPORT_EMAIL } from '../../lib/pricing'
 
 type Fase = 'criando' | 'aguardando' | 'expirado' | 'erro'
 
@@ -35,7 +35,7 @@ export function PagarComPix({ onFechar }: PagarComPixProps) {
 
     void (async () => {
       try {
-        trackEvent('checkout_start', { price: PRICE_BRL, metodo: 'pix' })
+        trackEvent('checkout_start', { price: PLANO_VITALICIO.preco, metodo: 'pix', plano: 'vitalicio' })
         const criada = await criarPix()
         setCobranca(criada)
         setFase('aguardando')
@@ -84,7 +84,7 @@ export function PagarComPix({ onFechar }: PagarComPixProps) {
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-xs uppercase tracking-wider text-muted">Pagar com Pix</p>
-          <p className="num mt-1 text-2xl font-bold text-ink">{formatCurrency(PRICE_BRL)}</p>
+          <p className="num mt-1 text-2xl font-bold text-ink">{formatCurrency(PLANO_VITALICIO.preco)}</p>
         </div>
         <button
           type="button"

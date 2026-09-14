@@ -3,10 +3,10 @@
  *
  * Cria a sessão de Checkout do Stripe e devolve a URL para onde redirecionar.
  *
- * O preço e a URL de retorno vêm do ambiente, não do corpo da requisição: se o
- * navegador pudesse escolher o preço, qualquer um compraria por R$ 0,01, e se
- * pudesse escolher o success_url isso viraria um redirecionamento aberto
- * assinado pelo domínio do Stripe.
+ * O corpo escolhe o PLANO, nunca o preço: o id do preço e a URL de retorno vêm
+ * do ambiente. Se o navegador pudesse mandar o preço, qualquer um compraria por
+ * R$ 0,01; se pudesse mandar o success_url, isso viraria um redirecionamento
+ * aberto assinado pelo domínio do Stripe.
  */
 import Stripe from 'npm:stripe@18'
 import { createClient } from 'npm:@supabase/supabase-js@2'
@@ -32,13 +32,14 @@ Deno.serve(async (req: Request) => {
   if (req.method !== 'POST') return json({ erro: 'metodo_nao_permitido' }, 405)
 
   const stripeKey = Deno.env.get('STRIPE_SECRET_KEY')
-  const priceId = Deno.env.get('STRIPE_PRICE_ID')
+  const priceVitalicio = Deno.env.get('STRIPE_PRICE_ID')
+  const priceMensal = Deno.env.get('STRIPE_PRICE_MENSAL')
   const siteUrl = Deno.env.get('SITE_URL')
   const supabaseUrl = Deno.env.get('SUPABASE_URL')
   const serviceRole = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
   const anonKey = Deno.env.get('SUPABASE_ANON_KEY')
 
-  if (!stripeKey || !priceId || !siteUrl || !supabaseUrl || !serviceRole || !anonKey) {
+  if (!stripeKey || !priceVitalicio || !siteUrl || !supabaseUrl || !serviceRole || !anonKey) {
     console.error('Faltam variáveis de ambiente na função.')
     return json({ erro: 'configuracao_incompleta' }, 500)
   }
@@ -51,30 +52,56 @@ Deno.serve(async (req: Request) => {
   const usuario = sessaoAuth?.user
   if (!usuario) return json({ erro: 'nao_autenticado' }, 401)
 
+  const corpo = (await req.json().catch(() => ({}))) as { plano?: string }
+  const plano = corpo.plano === 'mensal' ? 'mensal' : 'vitalicio'
+
+  // O mensal só existe depois que o preço recorrente for criado no painel.
+  // Até lá a função recusa em vez de cobrar o preço errado.
+  if (plano === 'mensal' && !priceMensal) {
+    return json({ erro: 'plano_indisponivel' }, 503)
+  }
+
   const base = siteUrl.replace(/\/+$/, '')
   const stripe = new Stripe(stripeKey)
 
+  const comum = {
+    line_items: [{ price: plano === 'mensal' ? priceMensal! : priceVitalicio, quantity: 1 }],
+    success_url: `${base}/acesso?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${base}/app`,
+    locale: 'pt-BR' as const,
+    // Amarra a compra à conta desde a origem; o e-mail já vem preenchido.
+    client_reference_id: usuario.id,
+    customer_email: usuario.email ?? undefined,
+  }
+
   try {
-    const sessao = await stripe.checkout.sessions.create({
-      mode: 'payment',
-      line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${base}/acesso?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${base}/app`,
-      locale: 'pt-BR',
-      customer_creation: 'always',
-      billing_address_collection: 'auto',
-      // Amarra a compra à conta desde a origem; o e-mail já vem preenchido.
-      client_reference_id: usuario.id,
-      customer_email: usuario.email ?? undefined,
-      payment_method_options: {
-        pix: {
-          // Padrão da Stripe são 4 horas. Para uma compra por impulso de
-          // R$ 19,90 isso é tempo demais: deixa cobrança pendente pendurada e
-          // dilui a urgência. Uma hora cobre com folga abrir o app do banco.
-          expires_after_seconds: PIX_EXPIRA_EM_SEGUNDOS,
-        },
-      },
-    })
+    const sessao =
+      plano === 'mensal'
+        ? await stripe.checkout.sessions.create({
+            ...comum,
+            mode: 'subscription',
+            // Nada de Pix aqui: Pix não faz cobrança recorrente, então neste
+            // modo a Stripe oferece só cartão. É por isso que o mensal é
+            // cartão-só, e não por escolha nossa.
+            //
+            // O metadata é o que liga a assinatura à conta nas renovações:
+            // `invoice.paid` não carrega client_reference_id.
+            subscription_data: { metadata: { user_id: usuario.id, plano } },
+          })
+        : await stripe.checkout.sessions.create({
+            ...comum,
+            mode: 'payment',
+            customer_creation: 'always',
+            billing_address_collection: 'auto',
+            payment_method_options: {
+              pix: {
+                // Padrão da Stripe são 4 horas. Para uma compra por impulso
+                // isso é tempo demais: deixa cobrança pendente pendurada e
+                // dilui a urgência. Uma hora cobre abrir o app do banco.
+                expires_after_seconds: PIX_EXPIRA_EM_SEGUNDOS,
+              },
+            },
+          })
 
     if (!sessao.url) return json({ erro: 'sessao_sem_url' }, 500)
 

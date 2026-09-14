@@ -2,7 +2,7 @@ import { Reveal } from '../../components/Reveal'
 import { CheckIcon } from '../../components/ui/icons'
 import { HOUSE_COUNT } from '../../lib/constants'
 import { formatCurrency } from '../../lib/format'
-import { PRICE_BRL } from '../../lib/pricing'
+import { PLANO_MENSAL } from '../../lib/pricing'
 import type { ChallengeStats } from '../../state/useStats'
 import { CtaButton } from './CtaButton'
 
@@ -36,8 +36,8 @@ const ITEMS = [
     text: 'Exporte um arquivo JSON quando quiser e importe em outro aparelho. Seus dados não ficam reféns de ninguém.',
   },
   {
-    title: 'Pagamento único',
-    text: 'Sem mensalidade, sem renovação, sem upsell. Você paga uma vez e o acesso é seu.',
+    title: 'Você escolhe como paga',
+    text: 'Mensal para começar barato e cancelar sozinho quando quiser, ou pagamento único e o acesso é seu para sempre. Sem upsell depois, sem versão premium escondida.',
   },
 ] as const
 
@@ -47,7 +47,7 @@ export function WhatYouGet({ stats }: { stats: ChallengeStats }) {
       <div className="mx-auto w-full max-w-3xl">
         <Reveal>
           <h2 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">
-            O que entra por {formatCurrency(PRICE_BRL)}
+            O que entra a partir de {formatCurrency(PLANO_MENSAL.preco)}
           </h2>
           <p className="mt-2 text-sm text-muted sm:text-base">Uma vez. Para sempre.</p>
         </Reveal>

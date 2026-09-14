@@ -3,7 +3,13 @@ import { ChevronDownIcon } from '../../components/ui/icons'
 import { trackEvent } from '../../lib/analytics'
 import { HOUSE_COUNT, TOTAL_AMOUNT } from '../../lib/constants'
 import { formatCurrency, formatCurrencyCompact } from '../../lib/format'
-import { GUARANTEE_DAYS, PRICE_BRL, SUPPORT_EMAIL } from '../../lib/pricing'
+import {
+  GUARANTEE_DAYS,
+  MESES_ATE_EMPATAR,
+  PLANO_MENSAL,
+  PLANO_VITALICIO,
+  SUPPORT_EMAIL,
+} from '../../lib/pricing'
 
 const QUESTIONS: readonly { id: string; question: string; answer: string }[] = [
   {
@@ -14,20 +20,19 @@ const QUESTIONS: readonly { id: string; question: string; answer: string }[] = [
   },
   {
     id: 'cobranca',
-    question: `${formatCurrency(PRICE_BRL)} é uma vez só mesmo? Não vem cobrança depois?`,
-    answer:
-      'Uma vez só. Não existe plano mensal, renovação automática, versão premium ou upsell depois. Você paga — no Pix ou no cartão — recebe o acesso e ele é seu, inclusive se trocar de celular. Se algum dia aparecer uma cobrança recorrente com esse nome no seu cartão, não fui eu.',
+    question: 'Qual a diferença entre o mensal e o vitalício?',
+    answer: `Só a forma de pagar — o app é exatamente o mesmo, sem versão premium nem recurso trancado. No mensal são ${formatCurrency(PLANO_MENSAL.preco)} por mês, só no cartão de crédito (Pix não faz cobrança recorrente), e você cancela sozinho quando quiser. No vitalício são ${formatCurrency(PLANO_VITALICIO.preco)} uma vez, no Pix ou no cartão, e nunca mais vem cobrança. A partir do ${MESES_ATE_EMPATAR}º mês o vitalício já saiu mais barato.`,
   },
   {
     id: 'garantia',
     question: 'E se eu não gostar?',
-    answer: `Você tem ${GUARANTEE_DAYS} dias para pedir o dinheiro de volta, sem precisar justificar e sem formulário de retenção. Um e-mail para ${SUPPORT_EMAIL} resolve. Prefiro devolver ${formatCurrency(PRICE_BRL)} a ter alguém carregando um app que não usa.`,
+    answer: `No mensal, você cancela dentro do app em dois cliques e não vem a próxima cobrança — sem formulário de retenção e sem precisar falar comigo. No vitalício você tem ${GUARANTEE_DAYS} dias para pedir o dinheiro de volta, sem justificar: um e-mail para ${SUPPORT_EMAIL} resolve. Prefiro devolver ${formatCurrency(PLANO_VITALICIO.preco)} a ter alguém carregando um app que não usa.`,
   },
   {
     id: 'por-que-pago',
     question: 'Por que não é de graça?',
     answer:
-      'Porque as alternativas para ser de graça são piores: anúncio no meio do seu progresso, venda dos seus dados, ou conexão com o seu banco para monetizar depois. Não faço nenhuma das três. Alguém precisa pagar pelo app, e prefiro que seja você, uma vez, sabendo exatamente quanto.',
+      'Porque as alternativas para ser de graça são piores: anúncio no meio do seu progresso, venda dos seus dados, ou conexão com o seu banco para monetizar depois. Não faço nenhuma das três. Alguém precisa pagar pelo app, e prefiro que seja você, sabendo exatamente quanto e podendo sair quando quiser.',
   },
   {
     id: 'sem-sobra',

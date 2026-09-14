@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from 'react'
 import { validarLicencaNoServidor, type MotivoRecusa } from '../lib/api'
+import type { PlanoId } from '../lib/pricing'
 import { supabase } from '../lib/supabase'
 import { useAuth } from './AuthContext'
 
@@ -33,6 +34,15 @@ export interface License {
    * gratuita e entrar — o portão de sessão não adiantava nada.
    */
   userId?: string
+  plan?: PlanoId
+  /**
+   * Quando o acesso termina, em ISO. Nulo no vitalício: não termina.
+   *
+   * Guardado junto com a licença porque é o que permite trancar o mensal
+   * vencido sem internet — do contrário, quem assinasse e ficasse offline
+   * teria acesso para sempre.
+   */
+  expiresAt?: string | null
 }
 
 export type EntitlementStatus = 'liberado' | 'bloqueado'
@@ -47,15 +57,31 @@ function readLicense(): License | null {
     const parsed: unknown = JSON.parse(raw)
     if (typeof parsed !== 'object' || parsed === null) return null
 
-    const { key, unlockedAt, userId } = parsed as Partial<License>
+    const { key, unlockedAt, userId, plan, expiresAt } = parsed as Partial<License>
     if (typeof key !== 'string' || !LICENSE_PATTERN.test(key)) return null
     if (typeof unlockedAt !== 'number' || !Number.isFinite(unlockedAt)) return null
 
-    return { key, unlockedAt, userId: typeof userId === 'string' ? userId : undefined }
+    return {
+      key,
+      unlockedAt,
+      userId: typeof userId === 'string' ? userId : undefined,
+      plan: plan === 'mensal' || plan === 'vitalicio' ? plan : undefined,
+      expiresAt: typeof expiresAt === 'string' ? expiresAt : null,
+    }
   } catch {
     return null
   }
 }
+
+/**
+ * Venceu?
+ *
+ * Sem data é o vitalício, que nunca vence. Esta checagem roda no navegador e é
+ * o que faz o mensal parar de funcionar offline quando o período acaba — o
+ * servidor confirma depois, mas não dá para depender dele estar alcançável.
+ */
+const venceu = (licenca: License | null): boolean =>
+  licenca?.expiresAt != null && new Date(licenca.expiresAt).getTime() <= Date.now()
 
 export const normalizeLicenseKey = (raw: string): string =>
   raw.trim().toUpperCase().replace(/\s+/g, '')
@@ -93,6 +119,8 @@ interface Entitlement {
   lock: () => void
   /** true quando o acesso caiu por reembolso ou contestação. */
   revogada: boolean
+  /** true quando a assinatura mensal terminou sem renovar. */
+  expirada: boolean
   /** Reconsulta a licença da conta. Use depois de um pagamento. */
   recarregar: () => Promise<void>
 }
@@ -112,6 +140,7 @@ export function EntitlementProvider({ children }: { children: ReactNode }) {
   const [license, setLicense] = useState<License | null>(readLicense)
 
   const [revogada, setRevogada] = useState(false)
+  const [expirada, setExpirada] = useState(false)
 
   const unlock = useCallback(async (rawKey: string) => {
     const key = normalizeLicenseKey(rawKey)
@@ -119,6 +148,7 @@ export function EntitlementProvider({ children }: { children: ReactNode }) {
     if (!resultado.valida) return resultado
 
     setRevogada(false)
+    setExpirada(false)
     const next: License = { key, unlockedAt: Date.now(), userId: usuario?.id }
     try {
       window.localStorage.setItem(LICENSE_KEY, JSON.stringify(next))
@@ -157,8 +187,12 @@ export function EntitlementProvider({ children }: { children: ReactNode }) {
     void (async () => {
       const resultado = await validateLicense(chave)
       if (cancelado) return
-      if (!resultado.valida && resultado.motivo === 'revogada') {
+      if (resultado.valida) return
+      if (resultado.motivo === 'revogada') {
         setRevogada(true)
+        lock()
+      } else if (resultado.motivo === 'expirada') {
+        setExpirada(true)
         lock()
       }
     })()
@@ -180,11 +214,16 @@ export function EntitlementProvider({ children }: { children: ReactNode }) {
   const recarregar = useCallback(async () => {
     if (!usuario) return
 
+    const agora = new Date().toISOString()
     const { data, error } = await supabase
       .from('licenses')
-      .select('key, revoked_at')
+      .select('key, revoked_at, plan, current_period_end')
       .eq('user_id', usuario.id)
       .is('revoked_at', null)
+      // Vitalício (data nula) ou mensal ainda dentro do período. Filtrar aqui,
+      // e não depois, evita destravar por um instante antes de perceber que a
+      // assinatura venceu.
+      .or(`current_period_end.is.null,current_period_end.gt.${agora}`)
       .maybeSingle()
 
     // Erro aqui é rede, não veredito: mantém o que já estava liberado. O app
@@ -200,7 +239,13 @@ export function EntitlementProvider({ children }: { children: ReactNode }) {
       return
     }
 
-    const proxima: License = { key: data.key, unlockedAt: Date.now(), userId: usuario.id }
+    const proxima: License = {
+      key: data.key,
+      unlockedAt: Date.now(),
+      userId: usuario.id,
+      plan: data.plan === 'mensal' ? 'mensal' : 'vitalicio',
+      expiresAt: data.current_period_end ?? null,
+    }
     try {
       window.localStorage.setItem(LICENSE_KEY, JSON.stringify(proxima))
     } catch {
@@ -208,6 +253,7 @@ export function EntitlementProvider({ children }: { children: ReactNode }) {
     }
     setLicense(proxima)
     setRevogada(false)
+    setExpirada(false)
   }, [usuario, lock])
 
   useEffect(() => {
@@ -216,7 +262,10 @@ export function EntitlementProvider({ children }: { children: ReactNode }) {
 
   // Uma licença com dono declarado só vale para esse dono. A sem dono é cache
   // de versão antiga: vale até o recarregar() confirmar ou derrubar.
-  const daConta = license !== null && (license.userId === undefined || license.userId === usuario?.id)
+  const daConta =
+    license !== null &&
+    (license.userId === undefined || license.userId === usuario?.id) &&
+    !venceu(license)
 
   const valor = useMemo<Entitlement>(
     () => ({
@@ -225,9 +274,10 @@ export function EntitlementProvider({ children }: { children: ReactNode }) {
       unlock,
       lock,
       revogada,
+      expirada: expirada || venceu(license),
       recarregar,
     }),
-    [license, daConta, unlock, lock, revogada, recarregar],
+    [license, daConta, unlock, lock, revogada, expirada, recarregar],
   )
 
   return <EntitlementContext.Provider value={valor}>{children}</EntitlementContext.Provider>
