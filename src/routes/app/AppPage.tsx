@@ -24,7 +24,7 @@ export default function AppPage() {
   const stats = useStats()
   const showToast = useToast()
   const { requestUnmark, dialog: unmarkDialog } = useUnmarkFlow()
-  const { status, revogada } = useEntitlement()
+  const { status, revogada, expirada: assinaturaExpirada } = useEntitlement()
   const { usuario, carregando: carregandoConta } = useAuth()
 
   useCelebration(stats)
@@ -125,7 +125,9 @@ export default function AppPage() {
   // pessoa ficava com um acesso que o servidor não sabia de quem era — sem
   // sincronia, sem recuperação e fora do alcance de um reembolso.
   if (!usuario || status === 'bloqueado') {
-    return <Paywall stats={stats} revogada={revogada} />
+    return (
+      <Paywall stats={stats} revogada={revogada} assinaturaExpirada={assinaturaExpirada} />
+    )
   }
 
   return (

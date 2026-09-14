@@ -25,6 +25,8 @@ interface PaywallProps {
   stats: ChallengeStats
   /** true quando o acesso caiu por reembolso ou contestação. */
   revogada?: boolean
+  /** true quando a assinatura mensal acabou sem renovar. */
+  assinaturaExpirada?: boolean
 }
 
 /**
@@ -34,7 +36,7 @@ interface PaywallProps {
  * ela. Sem isso, quem comprasse num aparelho ficaria trancado em qualquer
  * outro, e um navegador limpo apagaria a compra junto com o progresso.
  */
-export function Paywall({ stats, revogada }: PaywallProps) {
+export function Paywall({ stats, revogada, assinaturaExpirada }: PaywallProps) {
   const { usuario, sair, expirada } = useAuth()
 
   const [abrindoCheckout, setAbrindoCheckout] = useState(false)
@@ -84,6 +86,19 @@ export function Paywall({ stats, revogada }: PaywallProps) {
             <p className="mt-1 text-xs leading-relaxed text-muted">
               A compra desta conta foi reembolsada ou contestada. Seu progresso continua salvo — se
               foi engano, escreva para {SUPPORT_EMAIL}.
+            </p>
+          </div>
+        )}
+
+        {/* Sem isto, quem teve o cartão recusado via a página de vendas
+            comum e concluía que a conta sumiu junto com o dinheiro. */}
+        {assinaturaExpirada && !revogada && (
+          <div className="mt-5 rounded-2xl border border-gold/40 bg-gold/10 p-4">
+            <p className="text-sm font-semibold text-ink">Sua assinatura terminou</p>
+            <p className="mt-1 text-xs leading-relaxed text-muted">
+              O período pago acabou e a renovação não passou — pode ter sido cancelamento seu ou
+              uma cobrança recusada. Seu progresso está todo salvo e volta assim que você assinar
+              de novo. Qualquer dúvida, escreva para {SUPPORT_EMAIL}.
             </p>
           </div>
         )}

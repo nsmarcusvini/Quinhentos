@@ -214,37 +214,53 @@ export function EntitlementProvider({ children }: { children: ReactNode }) {
   const recarregar = useCallback(async () => {
     if (!usuario) return
 
-    const agora = new Date().toISOString()
+    // Traz as licenças da conta em vez de filtrar no SQL. Filtrar lá devolvia
+    // "nada" tanto para quem nunca comprou quanto para quem teve a assinatura
+    // vencida, e o app trancava as duas sem saber dizer por quê — a segunda
+    // via a página de vendas comum e concluía que a conta tinha sumido.
+    //
+    // Buscar a lista também evita o `maybeSingle` estourar em quem tem mais de
+    // uma linha, o caso de quem assinou, deixou vencer e depois comprou o
+    // vitalício.
     const { data, error } = await supabase
       .from('licenses')
-      .select('key, revoked_at, plan, current_period_end')
+      .select('key, revoked_at, plan, current_period_end, created_at')
       .eq('user_id', usuario.id)
-      .is('revoked_at', null)
-      // Vitalício (data nula) ou mensal ainda dentro do período. Filtrar aqui,
-      // e não depois, evita destravar por um instante antes de perceber que a
-      // assinatura venceu.
-      .or(`current_period_end.is.null,current_period_end.gt.${agora}`)
-      .maybeSingle()
+      .order('created_at', { ascending: false })
+      .limit(5)
 
     // Erro aqui é rede, não veredito: mantém o que já estava liberado. O app
     // promete funcionar offline, e trancar alguém por causa de um túnel seria
     // pior do que confiar no cache por mais um tempo.
     if (error) return
 
-    // O servidor respondeu e esta conta não tem licença. Isso é autoritativo:
-    // a RLS devolve a linha de quem está logado, então "nada" significa nada
-    // mesmo — inclusive quando o localStorage insiste no contrário.
-    if (!data?.key) {
+    const utilizavel = (linha: {
+      revoked_at: string | null
+      current_period_end: string | null
+    }) =>
+      !linha.revoked_at &&
+      (linha.current_period_end === null ||
+        new Date(linha.current_period_end).getTime() > Date.now())
+
+    const boa = data?.find(utilizavel)
+
+    if (!boa) {
+      // O servidor respondeu e esta conta não tem acesso. É autoritativo: a
+      // RLS devolve as linhas de quem está logado, então vazio é vazio mesmo,
+      // inclusive quando o localStorage insiste no contrário.
+      const recente = data?.[0]
+      if (recente?.revoked_at) setRevogada(true)
+      else if (recente) setExpirada(true)
       lock()
       return
     }
 
     const proxima: License = {
-      key: data.key,
+      key: boa.key,
       unlockedAt: Date.now(),
       userId: usuario.id,
-      plan: data.plan === 'mensal' ? 'mensal' : 'vitalicio',
-      expiresAt: data.current_period_end ?? null,
+      plan: boa.plan === 'mensal' ? 'mensal' : 'vitalicio',
+      expiresAt: boa.current_period_end ?? null,
     }
     try {
       window.localStorage.setItem(LICENSE_KEY, JSON.stringify(proxima))
